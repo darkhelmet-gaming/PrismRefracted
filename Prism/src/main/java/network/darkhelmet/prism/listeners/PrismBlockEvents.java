@@ -18,7 +18,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.Chest.Type;
-import org.bukkit.block.data.type.RespawnAnchor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -58,7 +57,7 @@ public class PrismBlockEvents extends BaseListener {
             .newBuilder()
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
-    private final Cache<Location, Player> anchorWeakCache = CacheBuilder
+    private final Cache<Location, Player> interactWeakCache = CacheBuilder
             .newBuilder()
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
@@ -380,7 +379,7 @@ public class PrismBlockEvents extends BaseListener {
             if (!Prism.getIgnore().event("respawnanchor-explode", event.getBlock())) {
                 return;
             }
-            Player player = anchorWeakCache.getIfPresent(event.getBlock().getLocation());
+            Player player = interactWeakCache.getIfPresent(event.getBlock().getLocation());
             if (player == null) {
                 return;
             }
@@ -388,7 +387,7 @@ public class PrismBlockEvents extends BaseListener {
             List<Block> affected = event.blockList();
             RecordingQueue.addToQueue(ActionFactory.createBlock("respawnanchor-explode", event.getBlock().getState(), player));
             contructBlockEvent("respawnanchor-explode", source, affected);
-            anchorWeakCache.invalidate(event.getBlock().getLocation());
+            interactWeakCache.invalidate(event.getBlock().getLocation());
         }
     }
 
@@ -398,8 +397,9 @@ public class PrismBlockEvents extends BaseListener {
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRespawnAnchorUse(PlayerInteractEvent event) {
-        if (event.hasBlock() && event.getClickedBlock().getType() == Material.RESPAWN_ANCHOR) {
-            anchorWeakCache.put(event.getClickedBlock().getLocation(), event.getPlayer());
+        if (event.hasBlock()
+                && (event.getClickedBlock().getType() == Material.RESPAWN_ANCHOR || event.getClickedBlock().getType() == Material.DRAGON_EGG)) {
+            interactWeakCache.put(event.getClickedBlock().getLocation(), event.getPlayer());
         }
     }
 
@@ -618,39 +618,46 @@ public class PrismBlockEvents extends BaseListener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFromTo(final BlockFromToEvent event) {
+        Block block = event.getBlock();
+        if (block.isLiquid()) {
+            final BlockState from = block.getState();
+            final BlockState to = event.getToBlock().getState();
 
-        // Ignore blocks that aren't liquid. @todo what else triggers this?
-        if (!event.getBlock().isLiquid()) {
-            return;
-        }
+            // Watch for blocks that the liquid can break
+            if (Utilities.canFlowBreakMaterial(to.getType())) {
+                if (from.getType() == Material.WATER) {
+                    if (Prism.getIgnore().event("water-break", block)) {
+                        RecordingQueue.addToQueue(ActionFactory.createBlock("water-break", event.getToBlock(), "Water"));
+                    }
+                } else if (from.getType() == Material.LAVA) {
+                    if (Prism.getIgnore().event("lava-break", block)) {
+                        RecordingQueue.addToQueue(ActionFactory.createBlock("lava-break", event.getToBlock(), "Lava"));
+                    }
+                }
+            }
 
-        final BlockState from = event.getBlock().getState();
-        final BlockState to = event.getToBlock().getState();
-
-        // Watch for blocks that the liquid can break
-        if (Utilities.canFlowBreakMaterial(to.getType())) {
+            // Record water flow
             if (from.getType() == Material.WATER) {
-                if (Prism.getIgnore().event("water-break", event.getBlock())) {
-                    RecordingQueue.addToQueue(ActionFactory.createBlock("water-break", event.getToBlock(), "Water"));
-                }
-            } else if (from.getType() == Material.LAVA) {
-                if (Prism.getIgnore().event("lava-break", event.getBlock())) {
-                    RecordingQueue.addToQueue(ActionFactory.createBlock("lava-break", event.getToBlock(), "Lava"));
+                if (Prism.getIgnore().event("water-flow", block)) {
+                    RecordingQueue.addToQueue(ActionFactory.createBlock("water-flow", block, "Water"));
                 }
             }
-        }
 
-        // Record water flow
-        if (from.getType() == Material.WATER) {
-            if (Prism.getIgnore().event("water-flow", event.getBlock())) {
-                RecordingQueue.addToQueue(ActionFactory.createBlock("water-flow", event.getBlock(), "Water"));
+            // Record lava flow
+            if (from.getType() == Material.LAVA) {
+                if (Prism.getIgnore().event("lava-flow", block)) {
+                    RecordingQueue.addToQueue(ActionFactory.createBlock("lava-flow", block, "Lava"));
+                }
             }
-        }
 
-        // Record lava flow
-        if (from.getType() == Material.LAVA) {
-            if (Prism.getIgnore().event("lava-flow", event.getBlock())) {
-                RecordingQueue.addToQueue(ActionFactory.createBlock("lava-flow", event.getBlock(), "Lava"));
+        } else if (block.getType() == Material.DRAGON_EGG) {
+            if (Prism.getIgnore().event("dragonegg-click", block)) {
+                RecordingQueue.addToQueue(ActionFactory.createBlockTeleport("dragonegg-click", block, event.getToBlock(),
+                        true, interactWeakCache.getIfPresent(block.getLocation())));
+            }
+            if (Prism.getIgnore().event("dragonegg-teleport", block)) {
+                RecordingQueue.addToQueue(ActionFactory.createBlockTeleport("dragonegg-teleport", block, event.getToBlock(),
+                        false, interactWeakCache.getIfPresent(block.getLocation())));
             }
         }
     }

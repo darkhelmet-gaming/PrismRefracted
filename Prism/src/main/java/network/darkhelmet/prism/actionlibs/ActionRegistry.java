@@ -6,6 +6,7 @@ import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.BlockChangeAction;
 import network.darkhelmet.prism.actions.BlockFallAction;
 import network.darkhelmet.prism.actions.BlockShiftAction;
+import network.darkhelmet.prism.actions.BlockTeleportAction;
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.actions.EntityTravelAction;
 import network.darkhelmet.prism.actions.GrowAction;
@@ -177,6 +178,10 @@ public class ActionRegistry {
                 BlockAction.class, Il8nHelper.getRawMessage("trampled")));
         registerAction(new ActionTypeImpl("dragon-eat", false, true, true,
                 BlockAction.class, Il8nHelper.getRawMessage("ate")));
+        registerAction(new ActionTypeImpl("dragonegg-click", true, true, true,
+                BlockTeleportAction.class, Il8nHelper.getRawMessage("teleported")));
+        registerAction(new ActionTypeImpl("dragonegg-teleport", true, true, true,
+                BlockTeleportAction.class, Il8nHelper.getRawMessage("teleported")));
         registerAction(new ActionTypeImpl("enchant-item", false, false, false,
                 ItemStackAction.class, Il8nHelper.getRawMessage("enchanted")));
         registerAction(new ActionTypeImpl("enderman-pickup", false, true, true,

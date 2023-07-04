@@ -136,6 +136,8 @@ public class PrismConfig extends ConfigBase {
         config.addDefault("prism.tracking.creeper-explode", true);
         config.addDefault("prism.tracking.crop-trample", true);
         config.addDefault("prism.tracking.dragon-eat", true);
+        config.addDefault("prism.tracking.dragonegg-click", true);
+        config.addDefault("prism.tracking.dragonegg-teleport", true);
         config.addDefault("prism.tracking.enchant-item", false);
         config.addDefault("prism.tracking.enderman-pickup", true);
         config.addDefault("prism.tracking.enderman-place", true);

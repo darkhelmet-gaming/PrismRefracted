@@ -13,7 +13,6 @@ import network.darkhelmet.prism.utils.MaterialTag;
 import network.darkhelmet.prism.utils.TypeUtils;
 import network.darkhelmet.prism.utils.block.Utilities;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Nameable;
 import org.bukkit.Tag;
@@ -287,6 +286,8 @@ public class BlockAction extends GenericAction {
         // (essentially liquid/air).
 
         final boolean cancelIfBadPlace = !getActionType().requiresHandler(BlockChangeAction.class)
+                && !getActionType().requiresHandler(BlockFallAction.class)
+                && !getActionType().requiresHandler(BlockTeleportAction.class)
                 && !getActionType().requiresHandler(PrismRollbackAction.class) && !parameters.hasFlag(Flag.OVERWRITE);
 
         if (cancelIfBadPlace && !Utilities.isAcceptableForBlockPlace(block.getType())) {

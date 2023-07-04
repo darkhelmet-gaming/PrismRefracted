@@ -4,6 +4,7 @@ import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.BlockChangeAction;
 import network.darkhelmet.prism.actions.BlockFallAction;
 import network.darkhelmet.prism.actions.BlockShiftAction;
+import network.darkhelmet.prism.actions.BlockTeleportAction;
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.actions.EntityTravelAction;
 import network.darkhelmet.prism.actions.GrowAction;
@@ -185,6 +186,23 @@ public class ActionFactory {
         a.setBlock(from);
         a.setSourceName(nonPlayer);
         a.setLoc(to);
+        return a;
+    }
+
+    /**
+     * BlockFromToEvent.
+     *
+     * @param actionType the action.
+     * @param from teleported block from.
+     * @param to teleported block to.
+     * @param isFrom if the location is where the block teleported from.
+     */
+    public static Handler createBlockTeleport(String actionType, Block from, Block to, boolean isFrom, Player player) {
+        final BlockTeleportAction a = new BlockTeleportAction();
+        a.setActionType(actionType);
+        a.setPlayer(player);
+        a.setFrom(isFrom);
+        a.setBlock(from, to);
         return a;
     }
 
