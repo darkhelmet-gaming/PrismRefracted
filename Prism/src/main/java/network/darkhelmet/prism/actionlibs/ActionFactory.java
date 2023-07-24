@@ -4,6 +4,7 @@ import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.BlockChangeAction;
 import network.darkhelmet.prism.actions.BlockFallAction;
 import network.darkhelmet.prism.actions.BlockShiftAction;
+import network.darkhelmet.prism.actions.BonemealUseAction;
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.actions.EntityTravelAction;
 import network.darkhelmet.prism.actions.GrowAction;
@@ -119,7 +120,7 @@ public class ActionFactory {
     }
 
     /**
-     * BlockPlaceEvent | EntityBlockFormEvent.
+     * BlockPlaceEvent | EntityBlockFormEvent | BlockFertilizeEvent.
      *
      * @param actionType type
      * @param oldMat     old
@@ -581,6 +582,34 @@ public class ActionFactory {
         a.setPlayer(player);
         a.setLoc(block.getLocation());
         a.setMaterial(item);
+        return a;
+    }
+
+    /**
+     * BonemealUseAction.
+     *
+     * @param block      the block acted on
+     * @param player     the acting player
+     */
+    public static Handler createBonemealUse(Block block, Player player) {
+        final BonemealUseAction a = new BonemealUseAction();
+        a.setActionType("bonemeal-use");
+        a.setBlock(block);
+        a.setPlayer(player);
+        return a;
+    }
+
+    /**
+     * BonemealUseAction.
+     *
+     * @param block      the block acted on
+     * @param nonPlayer     nonplayer
+     */
+    public static Handler createBonemealUse(Block block, String nonPlayer) {
+        final BonemealUseAction a = new BonemealUseAction();
+        a.setActionType("bonemeal-use");
+        a.setBlock(block);
+        a.setSourceName(nonPlayer);
         return a;
     }
 

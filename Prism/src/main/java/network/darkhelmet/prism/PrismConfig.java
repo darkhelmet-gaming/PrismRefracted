@@ -128,6 +128,7 @@ public class PrismConfig extends ConfigBase {
         config.addDefault("prism.tracking.block-shift", true);
         config.addDefault("prism.tracking.block-spread", true);
         config.addDefault("prism.tracking.block-use", true);
+        config.addDefault("prism.tracking.block-fertilize", true);
         config.addDefault("prism.tracking.bucket-fill", true);
         config.addDefault("prism.tracking.bonemeal-use", true);
         config.addDefault("prism.tracking.container-access", true);
@@ -179,6 +180,7 @@ public class PrismConfig extends ConfigBase {
         config.addDefault("prism.tracking.player-trade", false);
         config.addDefault("prism.tracking.portal-create", true);
         config.addDefault("prism.tracking.potion-splash", true);
+        config.addDefault("prism.tracking.potion-lingering", true);
         config.addDefault("prism.tracking.sheep-eat", true);
         config.addDefault("prism.tracking.sign-change", true);
         config.addDefault("prism.tracking.spawnegg-use", true);

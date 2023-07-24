@@ -6,6 +6,7 @@ import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.BlockChangeAction;
 import network.darkhelmet.prism.actions.BlockFallAction;
 import network.darkhelmet.prism.actions.BlockShiftAction;
+import network.darkhelmet.prism.actions.BonemealUseAction;
 import network.darkhelmet.prism.actions.EntityAction;
 import network.darkhelmet.prism.actions.EntityTravelAction;
 import network.darkhelmet.prism.actions.GrowAction;
@@ -161,8 +162,10 @@ public class ActionRegistry {
                 BlockChangeAction.class, Il8nHelper.getRawMessage("grew")));
         registerAction(new ActionTypeImpl("block-use", false, false, false,
                 BlockAction.class, Il8nHelper.getRawMessage("used")));
+        registerAction(new ActionTypeImpl("block-fertilize", true, true, true,
+                BlockChangeAction.class, Il8nHelper.getRawMessage("fertilized")));
         registerAction(new ActionTypeImpl("bonemeal-use", false, false, false,
-                UseAction.class, Il8nHelper.getRawMessage("used")));
+                BonemealUseAction.class, Il8nHelper.getRawMessage("used-bonemeal")));
         registerAction(new ActionTypeImpl("bucket-fill", false, false, false,
                 PlayerAction.class, Il8nHelper.getRawMessage("filled")));
         registerAction(new ActionTypeImpl("cake-eat", false, false, false,
@@ -260,6 +263,8 @@ public class ActionRegistry {
         registerAction(new ActionTypeImpl("portal-create", true, true, true,
                 PortalCreateAction.class, "created portal"));
         registerAction(new ActionTypeImpl("potion-splash", false, false, false,
+                PlayerAction.class, Il8nHelper.getRawMessage("potion-throw")));
+        registerAction(new ActionTypeImpl("potion-lingering", false, false, false,
                 PlayerAction.class, Il8nHelper.getRawMessage("potion-throw")));
         registerAction(new ActionTypeImpl("prism-drain", false, true, true,
                 PrismRollbackAction.class, Il8nHelper.getRawMessage("drained")));
