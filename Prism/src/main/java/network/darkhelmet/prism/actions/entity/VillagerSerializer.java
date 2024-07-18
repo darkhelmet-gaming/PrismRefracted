@@ -1,14 +1,19 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
 
 public class VillagerSerializer extends MerchantSerializer {
+    @SerializedName(value = "p", alternate = {"profession"})
     protected String profession = null;
+    @SerializedName(value = "t", alternate = {"type"})
     protected String type = null;
+    @SerializedName(value = "l", alternate = {"level"})
     protected int level = -1;
+    @SerializedName(value = "e", alternate = {"experience"})
     protected int experience = -1;
 
     @Override

@@ -1,6 +1,8 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import network.darkhelmet.prism.actions.typeadapter.BoolIgnoreTrueAdapter;
 import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.OfflinePlayer;
@@ -15,20 +17,24 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 public class EntitySerializer {
     //@todo remove alternates after 2.1.7 release
+    @SerializedName(value = "ad", alternate = {"isAdult"})
+    @JsonAdapter(BoolIgnoreTrueAdapter.class)
     protected Boolean isAdult = null;
+    @SerializedName(value = "sit", alternate = {"sitting"})
     protected Boolean sitting = null;
 
-    @SerializedName(value = "entityName", alternate = "entity_name")
+    @SerializedName(value = "en", alternate = {"entity_name", "entityName"})
     protected String entityName = null;
 
-    @SerializedName(value = "customName", alternate = "custom_name")
+    @SerializedName(value = "cn", alternate = {"custom_name", "customName"})
     protected String customName = null;
 
-    @SerializedName(value = "tamingOwner", alternate = "taming_owner")
+    @SerializedName(value = "to", alternate = {"taming_owner", "tamingOwner"})
     protected String tamingOwner = null;
+    @SerializedName(value = "nc", alternate = {"newColor"})
     protected String newColor = null;
 
-    @SerializedName(value = "customDesc", alternate = "custom_desc")
+    @SerializedName(value = "cd", alternate = {"custom_desc","customDesc"})
     protected String customDesc = null;
 
     public final String getEntityName() {

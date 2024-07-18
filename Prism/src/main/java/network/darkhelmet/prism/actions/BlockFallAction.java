@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.Location;
 
 public class BlockFallAction extends BlockChangeAction {
@@ -60,6 +61,7 @@ public class BlockFallAction extends BlockChangeAction {
     }
 
     public static class BlockFallActionData {
+        @SerializedName(value = "s", alternate = {"start"})
         boolean start;
         int x;
         int y;

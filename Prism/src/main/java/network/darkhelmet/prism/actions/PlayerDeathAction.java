@@ -1,10 +1,13 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Objects;
 
 public class PlayerDeathAction extends GenericAction {
-
+    @SerializedName(value = "c", alternate = {"cause"})
     private String cause;
+    @SerializedName(value = "a", alternate = {"attacker"})
 
     private String attacker;
 

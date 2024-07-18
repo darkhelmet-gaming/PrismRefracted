@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.BlockStateChange;
 import network.darkhelmet.prism.api.ChangeResult;
@@ -126,8 +127,11 @@ public class SignDyeAction extends GenericAction {
     }
 
     public class SignDyeActionData {
+        @SerializedName(value = "fs", alternate = {"frontSide"})
         public boolean frontSide;
+        @SerializedName(value = "oc", alternate = {"oldColor"})
         public DyeColor oldColor;
+        @SerializedName(value = "nc", alternate = {"newColor"})
         public DyeColor newColor;
     }
 

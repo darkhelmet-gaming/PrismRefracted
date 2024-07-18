@@ -1,11 +1,13 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Wolf;
 
 public class WolfSerlializer extends EntitySerializer {
+    @SerializedName(value = "c", alternate = {"color"})
     protected String color = null;
 
     @Override

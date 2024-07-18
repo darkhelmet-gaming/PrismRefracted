@@ -2,9 +2,11 @@ package network.darkhelmet.prism.actions.data;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
 import net.md_5.bungee.chat.ComponentSerializer;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actions.typeadapter.ItemNameIgnoreEmptyAdapter;
+import network.darkhelmet.prism.actions.typeadapter.SlotIgnoreNegativeOneAdapter;
 import network.darkhelmet.prism.api.objects.MaterialState;
 import network.darkhelmet.prism.utils.EntityUtils;
 import network.darkhelmet.prism.utils.ItemUtils;
@@ -46,32 +48,59 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ItemStackActionData {
+    @SerializedName(value = "a", alternate = {"amt", "amount"})
     public int amt;
+    @SerializedName(value = "m", alternate = {"material"})
     public Material material;
     @JsonAdapter(ItemNameIgnoreEmptyAdapter.class)
+    @SerializedName(value = "n", alternate = {"name"})
     public String name;
+    @SerializedName(value = "c", alternate = {"color"})
     public int color;
+    @SerializedName(value = "o", alternate = {"owner"})
     public String owner;
+    @SerializedName(value = "e", alternate = {"enchs"})
     public String[] enchs;
+    @SerializedName(value = "b", alternate = {"by"})
     public String by;
+    @SerializedName(value = "t", alternate = {"title"})
     public String title;
+    @SerializedName(value = "g", alternate = {"generation"})
     public BookMeta.Generation generation;
+    @SerializedName(value = "l", alternate = {"lore"})
     public String[] lore;
+    @SerializedName(value = "ct", alternate = {"content"})
     public String[] content;
+    @SerializedName(value = "s", alternate = {"slot"})
+    @JsonAdapter(SlotIgnoreNegativeOneAdapter.class)
     public String slot = "-1";
+    @SerializedName(value = "ec", alternate = {"effectColors"})
     public int[] effectColors;
+    @SerializedName(value = "fc", alternate = {"fadeColors"})
     public int[] fadeColors;
+    @SerializedName(value = "hf", alternate = {"hasFlicker"})
     public boolean hasFlicker;
+    @SerializedName(value = "ht", alternate = {"hasTrail"})
     public boolean hasTrail;
+    @SerializedName(value = "d", alternate = {"durability"})
     public short durability = 0;
+    @SerializedName(value = "bm", alternate = {"bannerMeta"})
     public Map<String, String> bannerMeta;
+    @SerializedName(value = "pt", alternate = {"potionType"})
     public String potionType;
+    @SerializedName(value = "pe", alternate = {"potionExtended"})
     public boolean potionExtended;
+    @SerializedName(value = "pu", alternate = {"potionUpgraded"})
     public boolean potionUpgraded;
+    @SerializedName(value = "htm", alternate = {"hasTrim"})
     public boolean hasTrim;
+    @SerializedName(value = "tm", alternate = {"trimMaterial"})
     public NamespacedKey trimMaterial;
+    @SerializedName(value = "tp", alternate = {"trimPattern"})
     public NamespacedKey trimPattern;
+    @SerializedName(value = "si", alternate = {"shulkerBoxInv"})
     public Map<Integer, ItemStackActionData> shulkerBoxInv;  // Deprecated
+    @SerializedName(value = "bi", alternate = {"blockInventory"})
     public Map<Integer, ItemStackActionData> blockInventory;
 
     public static ItemStackActionData createData(ItemStack item, int quantity, short durability, Map<Enchantment, Integer> enchantments) {

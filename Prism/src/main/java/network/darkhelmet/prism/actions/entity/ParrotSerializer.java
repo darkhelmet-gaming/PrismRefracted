@@ -1,10 +1,12 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Parrot;
 
 public class ParrotSerializer extends EntitySerializer {
+    @SerializedName(value = "v", alternate = {"var"})
     protected String var = null;
 
     @Override

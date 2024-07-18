@@ -1,11 +1,13 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.ZombieVillager;
 
 public class ZombieVillagerSerlializer extends EntitySerializer {
+    @SerializedName(value = "p", alternate = {"profession"})
     protected String profession = null;
 
     @Override

@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
@@ -648,10 +649,12 @@ public class BlockAction extends GenericAction {
      * @author botskonet
      */
     static class BlockActionData {
+        @SerializedName(value = "c", alternate = {"customName"})
         String customName = "";
     }
 
     public static class CommandActionData extends BlockActionData {
+        @SerializedName(value = "c", alternate = {"command"})
         String command;
     }
 
@@ -661,8 +664,9 @@ public class BlockAction extends GenericAction {
      * @author botskonet
      */
     public static class SpawnerActionData extends BlockActionData {
-
+        @SerializedName(value = "e", alternate = {"entityType"})
         String entityType;
+        @SerializedName(value = "d", alternate = {"delay"})
         int delay;
 
         EntityType getEntityType() {
@@ -675,6 +679,7 @@ public class BlockAction extends GenericAction {
     }
 
     public static class RotatableActionData extends BlockActionData {
+        @SerializedName(value = "r", alternate = {"rotation"})
         String rotation;
 
         BlockFace getRotation() {
@@ -692,7 +697,7 @@ public class BlockAction extends GenericAction {
      * @author botskonet
      */
     public static class SkullActionData extends RotatableActionData {
-
+        @SerializedName(value = "o", alternate = {"owner"})
         String owner;
 
     }
@@ -702,6 +707,7 @@ public class BlockAction extends GenericAction {
         /**
          * BACK, LEFT, RIGHT, FRONT on Spigot 1.20.1
          */
+        @SerializedName(value = "s", alternate = {"sherds"})
         Material[] sherds;
 
     }
@@ -713,15 +719,22 @@ public class BlockAction extends GenericAction {
      * @author botskonet
      */
     public static class SignActionData extends BlockActionData {
+        @SerializedName(value = "l", alternate = {"lines"})
         String[] lines;
+        @SerializedName(value = "c", alternate = {"color"})
         DyeColor color;
+        @SerializedName(value = "g", alternate = {"glowing"})
         boolean glowing;
+        @SerializedName(value = "bl", alternate = {"backLines"})
         String[] backLines;
+        @SerializedName(value = "bc", alternate = {"backColor"})
         DyeColor backColor;
+        @SerializedName(value = "bg", alternate = {"backGlowing"})
         boolean backGlowing;
     }
 
     public static class BannerActionData extends RotatableActionData {
+        @SerializedName(value = "p", alternate = {"patterns"})
         Map<String, String> patterns;
     }
 

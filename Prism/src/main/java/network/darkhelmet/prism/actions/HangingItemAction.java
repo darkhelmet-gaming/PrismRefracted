@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
@@ -149,8 +150,11 @@ public class HangingItemAction extends GenericAction {
 
     @SuppressWarnings("WeakerAccess")
     public static class HangingItemActionData {
+        @SerializedName(value = "t", alternate = {"type"})
         public String type;
+        @SerializedName(value = "d", alternate = {"direction"})
         public String direction;
+        @SerializedName(value = "a", alternate = {"art"})
         public String art;
     }
 }

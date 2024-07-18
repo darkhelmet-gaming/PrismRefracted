@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
@@ -117,7 +118,9 @@ public class SignGlowAction extends GenericAction {
     }
 
     public class SignGlowActionData {
+        @SerializedName(value = "fs", alternate = {"frontSide"})
         public boolean frontSide;
+        @SerializedName(value = "mg", alternate = {"makeGlow"})
         public boolean makeGlow;
     }
 

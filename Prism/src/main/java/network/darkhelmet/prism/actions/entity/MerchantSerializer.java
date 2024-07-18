@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.actions.data.ItemStackActionData;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MerchantSerializer extends EntitySerializer {
+    @SerializedName(value = "rdl", alternate = {"recipeDataList"})
     protected List<RecipeData> recipeDataList = null;
 
     @Override

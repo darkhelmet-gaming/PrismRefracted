@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
@@ -134,7 +135,9 @@ public class VehicleAction extends GenericAction {
     }
 
     public static class VehicleActionData {
+        @SerializedName(value = "vn", alternate = {"vehicleName"})
         String vehicleName;
+        @SerializedName(value = "wt", alternate = {"woodType"})
         String woodType;
     }
 }

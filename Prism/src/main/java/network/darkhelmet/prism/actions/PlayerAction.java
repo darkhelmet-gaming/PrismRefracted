@@ -1,6 +1,9 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
+
 public class PlayerAction extends GenericAction {
+    @SerializedName(value = "eI", alternate = {"extraInfo"})
 
     private String extraInfo;
 

@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.ActionTypeImpl;
-import network.darkhelmet.prism.actions.typeadapter.BoolIgnoreFalseAdapter;
-import network.darkhelmet.prism.actions.typeadapter.IntIgnoreZeroAdapter;
-import network.darkhelmet.prism.actions.typeadapter.LongIgnoreZeroAdapter;
-import network.darkhelmet.prism.actions.typeadapter.ShortIgnoreZeroAdapter;
+import network.darkhelmet.prism.actions.typeadapter.*;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.PrismParameters;
 import network.darkhelmet.prism.api.actions.ActionType;
@@ -32,6 +29,7 @@ public abstract class GenericAction implements Handler {
             .registerTypeAdapter(Short.class, new ShortIgnoreZeroAdapter())
             .registerTypeAdapter(Boolean.class, new BoolIgnoreFalseAdapter())
             .registerTypeAdapter(Long.class, new LongIgnoreZeroAdapter())
+            .registerTypeAdapter(Material.class, new MaterialIdAdapter())
             .create();
     private boolean canceled = false;
     private ActionType type;

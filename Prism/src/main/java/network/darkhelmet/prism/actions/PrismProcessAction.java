@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.actions.PrismProcessType;
 
@@ -59,7 +60,9 @@ public class PrismProcessAction extends GenericAction {
     }
 
     public static class PrismProcessActionData {
+        @SerializedName(value = "p", alternate = {"params"})
         public String params = "";
+        @SerializedName(value = "pt", alternate = {"processType"})
         public String processType;
     }
 }

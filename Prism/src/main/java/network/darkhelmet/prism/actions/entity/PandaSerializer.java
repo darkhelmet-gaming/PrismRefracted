@@ -1,11 +1,14 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Panda;
 
 public class PandaSerializer extends EntitySerializer {
+    @SerializedName(value = "mg", alternate = {"mainGene"})
     protected String mainGene = null;
+    @SerializedName(value = "hg", alternate = {"hiddenGene"})
     protected String hiddenGene = null;
 
     @Override

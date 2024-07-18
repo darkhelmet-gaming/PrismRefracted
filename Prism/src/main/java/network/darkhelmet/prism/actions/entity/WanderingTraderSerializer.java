@@ -1,9 +1,11 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.WanderingTrader;
 
 public class WanderingTraderSerializer extends MerchantSerializer {
+    @SerializedName(value = "d", alternate = {"despawnDelay"})
     protected int despawnDelay;
 
     @Override

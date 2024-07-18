@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
@@ -194,10 +195,15 @@ public class SignChangeAction extends GenericAction {
     }
 
     public static class SignChangeActionData {
+        @SerializedName(value = "fs", alternate = {"frontSide"})
         public boolean frontSide = true;
+        @SerializedName(value = "ol", alternate = {"oldLines"})
         public String[] oldLines;
+        @SerializedName(value = "l", alternate = {"lines"})
         public String[] lines;
+        @SerializedName(value = "st", alternate = {"signType"})
         public String signType;
+        @SerializedName(value = "f", alternate = {"facing"})
         public BlockFace facing;
     }
 }

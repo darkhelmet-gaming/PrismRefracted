@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -91,6 +92,7 @@ public class EntityTravelAction extends GenericAction {
         int x;
         int y;
         int z;
+        @SerializedName(value = "c", alternate = {"cause"})
         String cause;
     }
 }

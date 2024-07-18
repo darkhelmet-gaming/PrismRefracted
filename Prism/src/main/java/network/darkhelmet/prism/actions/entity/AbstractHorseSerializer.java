@@ -1,5 +1,6 @@
 package network.darkhelmet.prism.actions.entity;
 
+import com.google.gson.annotations.SerializedName;
 import network.darkhelmet.prism.utils.ItemUtils;
 import network.darkhelmet.prism.utils.MiscUtils;
 import org.bukkit.attribute.Attribute;
@@ -12,15 +13,25 @@ import org.bukkit.entity.Horse;
 import org.bukkit.entity.Llama;
 
 public class AbstractHorseSerializer extends EntitySerializer {
+    @SerializedName(value = "c", alternate = {"horseColor"})
     protected String horseColor = null;
+    @SerializedName(value = "s", alternate = {"style"})
     protected String style = null;
+    @SerializedName(value = "sd", alternate = {"saddle"})
     protected String saddle = null;
+    @SerializedName(value = "a", alternate = {"armor"})
     protected String armor = null;
+    @SerializedName(value = "ch", alternate = {"chest"})
     protected Boolean chest = null;
+    @SerializedName(value = "d", alternate = {"dom"})
     protected int dom = 0;
+    @SerializedName(value = "md", alternate = {"maxDom"})
     protected int maxDom = 20;
+    @SerializedName(value = "j", alternate = {"jump"})
     protected double jump = 1.0;
+    @SerializedName(value = "mh", alternate = {"maxHealth"})
     protected double maxHealth = 20.0;
+    @SerializedName(value = "ms", alternate = {"movementSpeed"})
     protected double movementSpeed = 0.2;
 
     @Override

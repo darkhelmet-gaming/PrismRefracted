@@ -109,6 +109,7 @@ public class ItemStackAction extends GenericAction {
         if (data == null || !data.startsWith("{")) {
             return;
         }
+
         actionData = gson().fromJson(data, ItemStackActionData.class);
 
         // Old extra data doesn't include the material so
@@ -116,6 +117,7 @@ public class ItemStackAction extends GenericAction {
         if (materialState != null && actionData.material == null) {
             actionData.material = materialState.material;
         }
+
 
         item = actionData.toItem();
     }
