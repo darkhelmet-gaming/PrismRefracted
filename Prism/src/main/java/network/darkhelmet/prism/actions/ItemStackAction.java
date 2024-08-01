@@ -1,5 +1,7 @@
 package network.darkhelmet.prism.actions;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actions.data.ItemStackActionData;
 import network.darkhelmet.prism.api.ChangeResult;
@@ -31,15 +33,46 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class ItemStackAction extends GenericAction {
 
+    private static final Cache<Long, Item> dropCache = CacheBuilder
+            .newBuilder()
+            .softValues()
+            .expireAfterWrite(3, TimeUnit.DAYS) // LONGGGGGGGGGGGGGGGGGGGGGG
+            .build();
+
+    public static void addCache(Long dataId, Item item) {
+        dropCache.put(dataId, item);
+    }
+
+    public static boolean removeFromCache(Long dataId) {
+        Item item = dropCache.getIfPresent(dataId);
+        if (item != null) {
+            dropCache.invalidate(dataId);
+            item.remove();
+            return true;
+        }
+        return false;
+    }
+
     protected ItemStack item;
     private ItemStackActionData actionData;
+    private Item dropEntity;
+
     /**
      * Holds durability if no actionData yet exists.
      */
     private short tempDurability = -1;
+
+    public Item getItemEntity() {
+        return dropEntity;
+    }
+
+    public void setItemEntity(Item dropEntity) {
+        this.dropEntity = dropEntity;
+    }
 
     @Override
     public boolean hasExtraData() {
@@ -172,6 +205,12 @@ public class ItemStackAction extends GenericAction {
 
             final Block block = getWorld().getBlockAt(getLoc());
             Inventory inventory = null;
+
+            // Entity death drops. Just remove the drops.
+            if (getUuid() == null || getActionType().getName().equals("item-drop")) {
+                removeItemEntity();
+                return new ChangeResultImpl(ChangeResultType.APPLIED, null);
+            }
 
             // Item drop/pickup from player inventories
             if (getActionType().getName().equals("item-drop") || getActionType().getName().equals("item-pickup")) {
@@ -333,6 +372,17 @@ public class ItemStackAction extends GenericAction {
                                 inventory.setItem(iSlot, item);
                             }
                         }
+                        if (added && (n.equals("item-insert") || n.equals("item-remove"))) {
+                            final Player onlinePlayer = Bukkit.getServer().getPlayer(getUuid());
+                            if (onlinePlayer != null) {
+                                Inventory playerInventory = onlinePlayer.getInventory();
+                                final HashMap<Integer, ItemStack> leftovers = InventoryUtils.removeItemFromInventory(playerInventory,
+                                        getItem());
+                                if (leftovers.size() > 0) {
+                                    Prism.debug("There are leftovers when roll-backing player inventory, action " + n);
+                                }
+                            }
+                        }
                     }
                     // If that failed we'll attempt to put it anywhere
                     if (!added) {
@@ -350,21 +400,7 @@ public class ItemStackAction extends GenericAction {
 
                     // Item was added to the inv, we need to remove the entity
                     if (added && (n.equals("item-drop") || n.equals("item-pickup"))) {
-                        final Entity[] entities = getLoc().getChunk().getEntities();
-                        for (final Entity entity : entities) {
-                            if (entity instanceof Item) {
-                                final ItemStack stack = ((Item) entity).getItemStack();
-                                if (stack.isSimilar(getItem())) {
-                                    // Remove the event's number of items from
-                                    // the stack
-                                    stack.setAmount(stack.getAmount() - getItem().getAmount());
-                                    if (stack.getAmount() == 0) {
-                                        entity.remove();
-                                    }
-                                    break;
-                                }
-                            }
-                        }
+                        removeItemEntity();
                     }
                 }
 
@@ -383,7 +419,7 @@ public class ItemStackAction extends GenericAction {
                     if (iSlot >= 0) {
 
                         if (iSlot >= inventory.getContents().length) {
-                            inventory.addItem(getItem());
+                            inventory.removeItem(getItem());
                         } else {
                             final ItemStack currentSlotItem = inventory.getItem(iSlot);
                             ItemStack item = getItem().clone();
@@ -399,7 +435,33 @@ public class ItemStackAction extends GenericAction {
                                 inventory.setItem(iSlot, amount > 0 ? item : null);
                             }
                         }
+                        if (removed && (n.equals("item-insert") || n.equals("item-remove"))) {
+                            final Player onlinePlayer = Bukkit.getServer().getPlayer(getUuid());
+                            if (onlinePlayer != null) {
+                                Inventory playerInventory = onlinePlayer.getInventory();
+                                final HashMap<Integer, ItemStack> leftovers = InventoryUtils.addItemToInventory(playerInventory,
+                                        getItem());
+                                if (leftovers.size() > 0) {
+                                    Prism.debug("There are leftovers when roll-backing player inventory, action " + n);
+                                }
+                            }
+                        }
                     }
+
+                    // If that failed we'll attempt to remove it anywhere
+                    if (!removed) {
+                        // TODO: Skip is actually "partially applied"
+                        final HashMap<Integer, ItemStack> leftovers = InventoryUtils.removeItemFromInventory(inventory,
+                                getItem());
+                        if (leftovers.size() > 0) {
+                            Prism.debug("Skipping removing items because there are leftovers");
+                            result = ChangeResultType.SKIPPED;
+                        } else {
+                            result = ChangeResultType.APPLIED;
+                            removed = true;
+                        }
+                    }
+
                     if (removed && (n.equals("item-drop") || n.equals("item-pickup"))) {
                         ItemUtils.dropItem(getLoc(), getItem());
                     }
@@ -407,5 +469,25 @@ public class ItemStackAction extends GenericAction {
             }
         }
         return new ChangeResultImpl(result, null);
+    }
+
+    private void removeItemEntity() {
+        if (!removeFromCache(getId())) {
+            // Not cached, search nearby for it.
+            for (final Entity entity : getLoc().getWorld().getNearbyEntities(getLoc(), 10, 10, 10)) {
+                if (entity instanceof Item) {
+                    final ItemStack stack = ((Item) entity).getItemStack();
+                    if (stack.isSimilar(getItem())) {
+                        // Remove the event's number of items from
+                        // the stack
+                        stack.setAmount(stack.getAmount() - getItem().getAmount());
+                        if (stack.getAmount() == 0) {
+                            entity.remove();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

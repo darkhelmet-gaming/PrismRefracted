@@ -109,7 +109,7 @@ public class PrismVehicleEvents implements Listener {
                 if (item != null && item.getType() != Material.AIR) {
                     RecordingQueue.addToQueue(ActionFactory.createItemStack("item-drop", item,
                             item.getAmount(), -1, null, vehicle.getLocation(),
-                            EntityUtils.treeSpeciesToName(chestBoat.getWoodType()) + " chest boat"));
+                            EntityUtils.treeSpeciesToName(chestBoat.getWoodType()) + " chest boat", null));
                 }
             }
 

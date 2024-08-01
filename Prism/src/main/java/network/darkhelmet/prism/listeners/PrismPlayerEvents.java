@@ -199,7 +199,7 @@ public class PrismPlayerEvents implements Listener {
         }
         RecordingQueue.addToQueue(ActionFactory.createItemStack("item-drop", event.getItemDrop().getItemStack(),
                 event.getItemDrop().getItemStack().getAmount(), -1, null, event.getPlayer().getLocation(),
-                event.getPlayer()));
+                event.getPlayer(), event.getItemDrop()));
     }
 
     /**

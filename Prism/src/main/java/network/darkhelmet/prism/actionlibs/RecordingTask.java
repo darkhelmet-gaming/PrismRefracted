@@ -1,6 +1,7 @@
 package network.darkhelmet.prism.actionlibs;
 
 import network.darkhelmet.prism.Prism;
+import network.darkhelmet.prism.actions.ItemStackAction;
 import network.darkhelmet.prism.api.actions.Handler;
 import network.darkhelmet.prism.database.InsertQuery;
 import network.darkhelmet.prism.measurement.QueueStats;
@@ -122,7 +123,10 @@ public class RecordingTask implements Runnable {
                 if (a.isCanceled()) {
                     continue;
                 }
-                batchedQuery.insertActionIntoDatabase(a);
+                long dataId = batchedQuery.insertActionIntoDatabase(a);
+                if (a instanceof ItemStackAction && ((ItemStackAction) a).getItemEntity() != null) {
+                    ItemStackAction.addCache(dataId, ((ItemStackAction) a).getItemEntity());
+                }
 
                 actionsRecorded++;
 

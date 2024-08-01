@@ -247,6 +247,13 @@ public class InventoryUtils {
     }
 
     /**
+     * Remove an item from the inventory, returns a hashmap of leftovers.
+     */
+    public static HashMap<Integer, ItemStack> removeItemFromInventory(Inventory inv, ItemStack item) {
+        return inv.removeItem(item);
+    }
+
+    /**
      * Give an item to a player.
      * @param inv Inventory
      * @param item ItemStack

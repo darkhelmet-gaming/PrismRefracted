@@ -14,6 +14,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -399,7 +400,26 @@ public class ActionFactory {
      */
     public static Handler createItemStack(String actionType, ItemStack item, int quantity, int slot,
                                           Map<Enchantment, Integer> enchantments, Location loc, OfflinePlayer player) {
+        return createItemStack(actionType, item, quantity, slot, enchantments, loc, player, null);
+    }
+
+    /**
+     * ItemStack Handler.
+     *
+     * @param actionType   String
+     * @param item         Item
+     * @param quantity     int
+     * @param slot         int
+     * @param enchantments map
+     * @param loc          Location
+     * @param player       Player
+     * @param itemEntity   The entity when rollbacked remove.
+     * @return handler
+     */
+    public static Handler createItemStack(String actionType, ItemStack item, int quantity, int slot,
+                                          Map<Enchantment, Integer> enchantments, Location loc, OfflinePlayer player, Item itemEntity) {
         final ItemStackAction a = createItemStack(actionType, item, quantity, enchantments, loc, player);
+        a.setItemEntity(itemEntity);
         a.setSlot(String.valueOf(slot));
 
         return a;
@@ -420,12 +440,32 @@ public class ActionFactory {
     public static Handler createItemStack(String actionType, ItemStack item, int quantity, int slot,
                                           Map<Enchantment, Integer> enchantments,
                                           Location loc, String sourceName) {
+        return createItemStack(actionType, item, quantity, slot, enchantments, loc, sourceName, null);
+    }
+
+    /**
+     * Handles a block being dropped or dispensed.
+     *
+     * @param actionType   type
+     * @param item         item
+     * @param quantity     qty
+     * @param slot         slot it was in
+     * @param enchantments Map of enchants
+     * @param loc          Location
+     * @param sourceName   Source of the item.
+     * @param itemEntity   The entity when rollbacked remove.
+     * @return Handler
+     */
+    public static Handler createItemStack(String actionType, ItemStack item, int quantity, int slot,
+                                          Map<Enchantment, Integer> enchantments,
+                                          Location loc, String sourceName, Item itemEntity) {
         final ItemStackAction a = new ItemStackAction();
         a.setActionType(actionType);
         a.setLoc(loc);
         a.setSourceName(sourceName);
         a.setItem(item, quantity, enchantments);
         a.setSlot(String.valueOf(slot));
+        a.setItemEntity(itemEntity);
         return a;
     }
 
