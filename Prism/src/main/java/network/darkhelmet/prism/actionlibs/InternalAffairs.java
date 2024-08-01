@@ -1,8 +1,6 @@
 package network.darkhelmet.prism.actionlibs;
 
 import network.darkhelmet.prism.Prism;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,17 +17,9 @@ public class InternalAffairs implements Runnable {
     @Override
     public void run() {
 
-        if (plugin.recordingTask != null) {
-
-            final int taskId = plugin.recordingTask.getTaskId();
-
-            final BukkitScheduler scheduler = Bukkit.getScheduler();
-
-            // is recording task running?
-            if (scheduler.isCurrentlyRunning(taskId) || scheduler.isQueued(taskId)) {
-                Prism.debug("[InternalAffairs] Recorder is currently active. All is good.");
-                return;
-            }
+        if (plugin.recordingTask != null && plugin.recordingTask.isActive()) {
+            Prism.debug("[InternalAffairs] Recorder is currently active. All is good.");
+            return;
         }
 
         Prism.log("[InternalAffairs] Recorder is NOT active. checking database...");

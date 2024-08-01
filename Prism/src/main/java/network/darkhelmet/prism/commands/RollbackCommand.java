@@ -11,6 +11,7 @@ import network.darkhelmet.prism.appliers.Rollback;
 import network.darkhelmet.prism.commandlibs.CallInfo;
 import network.darkhelmet.prism.commandlibs.PreprocessArgs;
 import network.darkhelmet.prism.text.ReplaceableTextComponent;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class RollbackCommand extends AbstractCommand {
                 Prism.messenger.playerSubduedHeaderMsg(ReplaceableTextComponent.builder("rollback-prepare")
                         .replace("<defaults>", defaultsReminder)
                         .build()));
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        PrismScheduler.runTaskAsynchronously(() -> {
 
             final ActionsQuery aq = new ActionsQuery(plugin);
             final QueryResult results = aq.lookup(parameters, call.getSender());
@@ -47,7 +48,8 @@ public class RollbackCommand extends AbstractCommand {
                         Prism.messenger.playerHeaderMsg(Il8nHelper.getMessage("rollback-start")));
 
                 // Perform rollback on the main thread
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                // TODO: FOLIA TEST
+                PrismScheduler.runTask(() -> {
                     final Rollback rb = new Rollback(plugin, call.getSender(), results.getActionResults(),
                             parameters, new PrismApplierCallback());
                     rb.apply();

@@ -12,9 +12,11 @@ import network.darkhelmet.prism.utils.MiscUtils;
 import network.darkhelmet.prism.utils.block.Utilities;
 import net.kyori.adventure.text.format.NamedTextColor;
 import network.darkhelmet.prism.api.actions.Handler;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -56,7 +58,9 @@ public class InspectorWand extends QueryWandBase {
 
         final Block block = loc.getBlock();
         final Block sibling = Utilities.getSiblingForDoubleLengthBlock(block);
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        BlockData blockData = block.getBlockData();
+        Material type = blockData.getMaterial();
+        PrismScheduler.runTaskAsynchronously(() -> {
 
             // Build params
             QueryParameters params;
@@ -89,7 +93,7 @@ public class InspectorWand extends QueryWandBase {
             final QueryResult results = getResult(params, player);
             if (!results.getActionResults().isEmpty()) {
 
-                final String blockname = Prism.getItems().getAlias(block.getType(), block.getBlockData());
+                final String blockname = Prism.getItems().getAlias(type, blockData);
                 Prism.messenger.sendMessage(player,
                         Prism.messenger.playerHeaderMsg(ReplaceableTextComponent.builder("inspector-wand-header")
                                 .replace("<blockname>",blockname)
@@ -113,9 +117,9 @@ public class InspectorWand extends QueryWandBase {
                 }
                 MiscUtils.sendPageButtons(results, player);
             } else {
-                final String space_name = (block.getType().equals(Material.AIR) ? "space"
-                        : block.getType().toString().replaceAll("_", " ").toLowerCase()
-                        + (block.getType().toString().endsWith("BLOCK") ? "" : " block"));
+                final String space_name = (type.equals(Material.AIR) ? "space"
+                        : type.toString().replaceAll("_", " ").toLowerCase()
+                        + (type.toString().endsWith("BLOCK") ? "" : " block"));
                 Prism.messenger.sendMessage(player,
                         Prism.messenger.playerError("No history for this " + space_name + " found."));
             }

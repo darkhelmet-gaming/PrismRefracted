@@ -16,6 +16,7 @@ import network.darkhelmet.prism.utils.MiscUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -52,7 +53,7 @@ public class LookupCommand implements SubHandler {
         }
 
         // Run the lookup itself in an async task so the lookup query isn't done on the main thread
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        PrismScheduler.runTaskAsynchronously(() -> {
 
             // determine if defaults were used
             final List<String> defaultsUsed = parameters.getDefaultsUsed();

@@ -18,6 +18,7 @@ import network.darkhelmet.prism.utils.MiscUtils;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.command.CommandSender;
 
 import java.sql.Connection;
@@ -231,7 +232,7 @@ public class ReportCommand extends AbstractCommand {
           Run the lookup itself in an async task so the lookup query isn't done on the
           main thread
          */
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> reportQuery.report(call.getSender()));
+        PrismScheduler.runTaskAsynchronously(() -> reportQuery.report(call.getSender()));
     }
 
     private boolean checkParams(QueryParameters parameters, CallInfo call) {
@@ -268,6 +269,6 @@ public class ReportCommand extends AbstractCommand {
         }
         final ActionReportQuery reportQuery = Prism.getPrismDataSource().createActionReportQuery();
         reportQuery.setParameters(parameters);
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> reportQuery.report(call.getSender()));
+        PrismScheduler.runTaskAsynchronously(() -> reportQuery.report(call.getSender()));
     }
 }

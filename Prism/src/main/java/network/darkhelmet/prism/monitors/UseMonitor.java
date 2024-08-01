@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -181,8 +182,7 @@ public class UseMonitor {
      * Periodically clear the use alert history.
      */
     private void resetEventsQueue() {
-        plugin.getServer().getScheduler()
-                .scheduleSyncRepeatingTask(plugin, () -> countedEvents = new ConcurrentHashMap<>(),
+        PrismScheduler.scheduleSyncRepeatingTask(() -> countedEvents = new ConcurrentHashMap<>(),
                         7000L, 7000L);
     }
 }

@@ -12,6 +12,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -77,7 +78,7 @@ public class OreMonitor {
                                                 HoverEvent.ShowItem.of(Key.key(
                                                         block.getType().getKey().toString()), 1)))
                                 .build();
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                PrismScheduler.runTaskAsynchronously(() -> {
                     // Check if block placed
                     // Build params
                     final QueryParameters params = new QueryParameters();

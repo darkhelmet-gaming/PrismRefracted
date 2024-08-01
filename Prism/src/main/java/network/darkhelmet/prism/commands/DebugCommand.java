@@ -8,6 +8,7 @@ import network.darkhelmet.prism.commandlibs.SubHandler;
 import network.darkhelmet.prism.database.PrismDataSource;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -48,7 +49,7 @@ public class DebugCommand implements SubHandler {
                     Component.text(Il8nHelper.getRawMessage("debug-msg") + " " + Prism.isDebug())));
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(Prism.getInstance(), () -> createPaste(
+        PrismScheduler.runTaskAsynchronously(() -> createPaste(
                 call.getSender()));
     }
 

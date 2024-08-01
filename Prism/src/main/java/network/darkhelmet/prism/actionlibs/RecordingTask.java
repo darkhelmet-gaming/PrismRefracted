@@ -4,6 +4,7 @@ import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.api.actions.Handler;
 import network.darkhelmet.prism.database.InsertQuery;
 import network.darkhelmet.prism.measurement.QueueStats;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -191,7 +192,6 @@ public class RecordingTask implements Runnable {
                             + " down the server, ignore me.");
             return;
         }
-        plugin.recordingTask = plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin,
-                this, getTickDelayForNextBatch());
+        plugin.recordingTask = PrismScheduler.runTaskLaterAsynchronously(this, getTickDelayForNextBatch());
     }
 }

@@ -3,6 +3,7 @@ package network.darkhelmet.prism.purge;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.ActionsQuery;
 import network.darkhelmet.prism.actionlibs.QueryParameters;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -119,7 +120,7 @@ public class PurgeTask implements Runnable {
 
         // If cycle is incomplete, reschedule it
         if (!cycleComplete) {
-            plugin.getPurgeManager().deleteTask = plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin,
+            plugin.getPurgeManager().deleteTask = PrismScheduler.runTaskLaterAsynchronously(
                     new PurgeTask(plugin, paramList, purgeTickDelay, newMinId, maxId, callback), purgeTickDelay);
         } else {
             // reset counts
@@ -133,7 +134,7 @@ public class PurgeTask implements Runnable {
             Prism.log("Moving on to next purge rule...");
 
             // schedule a new task with next param
-            plugin.getPurgeManager().deleteTask = plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin,
+            plugin.getPurgeManager().deleteTask = PrismScheduler.runTaskLaterAsynchronously(
                     new PurgeTask(plugin, paramList, purgeTickDelay, callback), purgeTickDelay);
         }
     }

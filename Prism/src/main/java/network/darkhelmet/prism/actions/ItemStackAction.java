@@ -176,6 +176,10 @@ public class ItemStackAction extends GenericAction {
             // Item drop/pickup from player inventories
             if (getActionType().getName().equals("item-drop") || getActionType().getName().equals("item-pickup")) {
 
+                if (getUuid() == null) {
+                    // Not a player. Folia doesn't accept null key.
+                    return new ChangeResultImpl(ChangeResultType.SKIPPED, null);
+                }
                 // Is player online?
                 final Player onlinePlayer = Bukkit.getServer().getPlayer(getUuid());
                 if (onlinePlayer != null) {

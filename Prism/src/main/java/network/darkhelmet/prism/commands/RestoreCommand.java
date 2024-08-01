@@ -12,6 +12,7 @@ import network.darkhelmet.prism.appliers.Restore;
 import network.darkhelmet.prism.commandlibs.CallInfo;
 import network.darkhelmet.prism.commandlibs.PreprocessArgs;
 import network.darkhelmet.prism.text.ReplaceableTextComponent;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class RestoreCommand extends AbstractCommand {
                 Prism.messenger.playerSubduedHeaderMsg(ReplaceableTextComponent.builder("restore-prepare")
                         .replace("<defaults>", defaultsReminder).build()));
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        PrismScheduler.runTaskAsynchronously(() -> {
 
             final ActionsQuery aq = new ActionsQuery(plugin);
             final QueryResult results = aq.lookup(parameters, call.getSender());
@@ -58,7 +59,8 @@ public class RestoreCommand extends AbstractCommand {
                 }
 
                 // Perform restore on the main thread
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                // TODO: FOLIA TEST
+                PrismScheduler.runTask(() -> {
                     final Previewable rs = new Restore(plugin, call.getSender(), results.getActionResults(),
                             parameters, new PrismApplierCallback());
                     rs.apply();

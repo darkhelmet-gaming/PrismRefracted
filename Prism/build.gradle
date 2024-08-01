@@ -12,7 +12,7 @@ repositories {
     mavenCentral()
 
     // Paper
-    maven { url = 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
 
     // Spigot
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -39,9 +39,14 @@ processResources {
 }
 
 dependencies {
+    compileOnly('dev.folia:folia-api:1.20.4-R0.1-SNAPSHOT') {
+        // Allows Java 1.8
+        targetConfiguration = "compile"
+    }
     compileOnly 'org.spigotmc:spigot-api:1.20.3-R0.1-SNAPSHOT'
-    compileOnly 'com.sk89q.worldedit:worldedit-core:7.2.0-SNAPSHOT'
-    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT'
+    compileOnly('com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT') {
+        exclude group: 'org.spigotmc', module: 'spigot-api'
+    }
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'io.papermc:paperlib:1.0.3'
     implementation 'com.zaxxer:HikariCP:4.0.3'

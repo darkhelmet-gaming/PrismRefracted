@@ -559,8 +559,9 @@ public class QueryParameters implements PrismParameters, Cloneable {
         StringBuilder params = new StringBuilder();
         if (args.length > 0) {
             for (int i = start; i < args.length; i++) {
-                params.append(" ").append(args[i]);
+                params.append(args[i]).append(" ");
             }
+            params.deleteCharAt(params.length() - 1);
         }
         originalCommand = params.toString();
     }

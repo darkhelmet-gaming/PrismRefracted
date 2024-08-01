@@ -7,7 +7,7 @@ import network.darkhelmet.prism.commandlibs.SubHandler;
 import network.darkhelmet.prism.text.ReplaceableTextComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +36,7 @@ public class PurgeCommand implements SubHandler {
             if (Objects.equals(call.getArgs()[1], "execute")) {
                 Prism.messenger.sendMessage(call.getSender(),
                         Prism.messenger.playerHeaderMsg(Il8nHelper.getMessage("purge-execute")));
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, plugin.getPurgeManager());
+                PrismScheduler.runTaskAsynchronously(plugin.getPurgeManager());
             }
         } else {
             Prism.messenger.sendMessage(call.getSender(),Il8nHelper.getMessage("invalid-command"));

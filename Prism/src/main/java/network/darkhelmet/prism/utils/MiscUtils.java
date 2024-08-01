@@ -12,6 +12,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -231,7 +232,7 @@ public class MiscUtils {
                 continue;
             }
             String processedCommand = command.replace("<alert>", cleanMessage);
-            Bukkit.getScheduler().runTask(Prism.getInstance(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), processedCommand));
+            PrismScheduler.runTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), processedCommand));
         }
     }
 

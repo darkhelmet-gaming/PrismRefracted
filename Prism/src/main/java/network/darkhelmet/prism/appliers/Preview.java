@@ -1,5 +1,7 @@
 package network.darkhelmet.prism.appliers;
 
+import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
 import network.darkhelmet.prism.Il8nHelper;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.QueryParameters;
@@ -14,6 +16,8 @@ import network.darkhelmet.prism.events.EventHelper;
 import network.darkhelmet.prism.events.PrismRollBackEvent;
 import network.darkhelmet.prism.text.ReplaceableTextComponent;
 import network.darkhelmet.prism.utils.EntityUtils;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
+import network.darkhelmet.prism.utils.folia.PrismTask;
 import network.darkhelmet.prism.wands.RollbackWand;
 import network.darkhelmet.prism.wands.Wand;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -34,6 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public class Preview implements Previewable {
 
@@ -52,7 +58,7 @@ public class Preview implements Previewable {
     private int changesAppliedCount;
     private int changesPlannedCount;
     private int blockChangesRead = 0;
-    private int worldChangeQueueTaskId;
+    private PrismTask worldChangeQueueTask;
     private ApplierCallback callback;
 
     /**
@@ -181,33 +187,36 @@ public class Preview implements Previewable {
         startTime = System.nanoTime();
         blockChangesRead = 0;
         totalChangesCount = worldChangeQueue.size();
+        Prism.debug("World change queue size: " + totalChangesCount);
+
+        if (worldChangeQueue.isEmpty()) {
+            Prism.messenger.sendMessage(sender,
+                    Prism.messenger.playerError(Il8nHelper.getMessage("preview-no-actions")));
+            return;
+        }
 
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
         nf.setRoundingMode(RoundingMode.DOWN);
-        ReplaceableTextComponent progressComponent = ReplaceableTextComponent.builder("applier-actionbar-applying")
-                .replace("<processType>", processType.name().toLowerCase() + (isPreview ? " preview" : ""));
 
-        worldChangeQueueTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        Component progressComponent = ReplaceableTextComponent.builder("applier-actionbar-applying")
+                .replace("<processType>", processType.name().toLowerCase() + (isPreview ? " preview" : "")).build();
+        Pattern percentage = Pattern.compile("<percentage>");
+        Pattern elapsed = Pattern.compile("<elapsed>");
 
-            Prism.debug("World change queue size: " + worldChangeQueue.size());
+        // TODO: FOLIA TEST
+        worldChangeQueueTask = PrismScheduler.scheduleSyncRepeatingTask(() -> {
 
-            if (worldChangeQueue.isEmpty()) {
-                Prism.messenger.sendMessage(sender,
-                        Prism.messenger.playerError(Il8nHelper.getMessage("preview-no-actions")));
-                return;
-            }
+            Prism.messenger.sendActionBar(sender, progressComponent
+                    .replaceText(percentage, builder -> Component.text(nf.format((isPreview ?
+                            (blockChangesRead / (float) worldChangeQueue.size() * 100) :
+                            ((totalChangesCount - worldChangeQueue.size()) / (float) totalChangesCount * 100)))))
+                    .replaceText(elapsed, builder -> Component.text(((System.nanoTime() - startTime) / 1000000000) + "s"))
+                    .color(NamedTextColor.GOLD));
 
             int iterationCount = 0;
             final int currentQueueOffset = blockChangesRead;
-
-            Prism.messenger.sendActionBar(sender, progressComponent
-                    .replace("<percentage>", nf.format((isPreview ?
-                            (currentQueueOffset/ (float) worldChangeQueue.size() * 100) :
-                            ((totalChangesCount - worldChangeQueue.size()) / (float) totalChangesCount * 100))))
-                    .replace("<elapsed>", ((System.nanoTime() - startTime) / 1000000000) + "s")
-                    .build().color(NamedTextColor.GOLD));
 
             if (currentQueueOffset < worldChangeQueue.size()) {
                 for (final Iterator<Handler> iterator = worldChangeQueue.listIterator(currentQueueOffset);
@@ -287,7 +296,7 @@ public class Preview implements Previewable {
 
             // The task for this action is done being used
             if (worldChangeQueue.isEmpty() || blockChangesRead >= worldChangeQueue.size()) {
-                plugin.getServer().getScheduler().cancelTask(worldChangeQueueTaskId);
+                worldChangeQueueTask.cancel();
                 if (isPreview) {
                     postProcessPreview();
                 } else {
@@ -299,7 +308,7 @@ public class Preview implements Previewable {
                         .replace("<elapsed>", ((System.nanoTime() - startTime) / 1000000000f) + "s")
                         .build().color(NamedTextColor.GOLD));
             }
-        }, 2L, 2L);
+        }, worldChangeQueue.get(0).getLoc(), 2L, 2L);
     }
 
     private void postProcessPreview() {
@@ -323,14 +332,15 @@ public class Preview implements Previewable {
 
     private void moveEntitiesToSafety() {
         if (parameters.getWorld() != null && player != null) {
-            final List<Entity> entities = player.getNearbyEntities(parameters.getRadius(), parameters.getRadius(),
-                  parameters.getRadius());
+            // TODO: Folia - may throw `IllegalStateException: Cannot getEntities asynchronously` if large radius; Waiting for API
+            final List<Entity> entities = player.getNearbyEntities(
+                    parameters.getRadius(), parameters.getRadius(), parameters.getRadius());
             entities.add(player);
             for (final Entity entity : entities) {
                 if (entity instanceof LivingEntity) {
                     int add = 0;
                     if (EntityUtils.inCube(parameters.getPlayerLocation(), parameters.getRadius(),
-                          entity.getLocation())) {
+                            entity.getLocation())) {
                         final Location l = entity.getLocation();
                         while (!EntityUtils.playerMayPassThrough(l.getBlock().getType())) {
                             add++;
@@ -341,11 +351,16 @@ public class Preview implements Previewable {
                         }
                         if (add > 0) {
                             entitiesMoved.put(entity, add);
-                            entity.teleport(l);
+                            if (Prism.isFolia) {
+                                entity.teleportAsync(l);
+                            } else {
+                                entity.teleport(l);
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 

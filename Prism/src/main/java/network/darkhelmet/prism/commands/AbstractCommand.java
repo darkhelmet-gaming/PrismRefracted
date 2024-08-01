@@ -4,9 +4,7 @@ import network.darkhelmet.prism.Il8nHelper;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.QueryParameters;
 import network.darkhelmet.prism.commandlibs.SubHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.List;
 
@@ -27,12 +25,8 @@ public abstract class AbstractCommand implements SubHandler {
     @SuppressWarnings("WeakerAccess")
     protected static boolean checkRecorderActive(Prism plugin) {
         boolean recorderActive = false;
-        if (plugin.recordingTask != null) {
-            final int taskId = plugin.recordingTask.getTaskId();
-            final BukkitScheduler scheduler = Bukkit.getScheduler();
-            if (scheduler.isCurrentlyRunning(taskId) || scheduler.isQueued(taskId)) {
-                recorderActive = true;
-            }
+        if (plugin.recordingTask != null && plugin.recordingTask.isActive()) {
+            recorderActive = true;
         }
         return recorderActive;
     }

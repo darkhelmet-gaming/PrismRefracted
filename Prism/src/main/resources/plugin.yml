@@ -5,6 +5,7 @@ softdepend: [WorldEdit,Multiverse-Core]
 author: viveleroi
 website: https://github.com/darkhelmet-gaming/PrismRefracted
 api-version: @apiversion@
+folia-supported: true
 commands:
    prism:
       description: Base command for everything Prism

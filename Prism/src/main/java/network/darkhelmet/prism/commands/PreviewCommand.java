@@ -15,6 +15,7 @@ import network.darkhelmet.prism.commandlibs.CallInfo;
 import network.darkhelmet.prism.commandlibs.PreprocessArgs;
 import network.darkhelmet.prism.utils.MiscUtils;
 import net.kyori.adventure.audience.Audience;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +99,7 @@ public class PreviewCommand extends AbstractCommand {
                         .playerSubduedHeaderMsg(
                                 Il8nHelper.getMessage("queryparameter.defaults.prefix",
                                         defaultsReminder.toString())));
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                PrismScheduler.runTaskAsynchronously(() -> {
 
                     // Perform preview
                     final ActionsQuery aq = new ActionsQuery(plugin);
@@ -133,7 +134,7 @@ public class PreviewCommand extends AbstractCommand {
                     Il8nHelper.getMessage("preview-apply-start")));
 
             // Perform preview on the main thread
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            PrismScheduler.runTask(() -> {
                 final Previewable rs = new Restore(plugin, call.getPlayer(),
                         results.getActionResults(), parameters, new PrismApplierCallback());
                 rs.preview();
@@ -154,7 +155,7 @@ public class PreviewCommand extends AbstractCommand {
                     Il8nHelper.getMessage("preview-apply-start")));
 
             // Perform preview on the main thread
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
+            PrismScheduler.runTask(() -> {
                 final Previewable rs = new Rollback(plugin, call.getPlayer(),
                         results.getActionResults(), parameters, new PrismApplierCallback());
                 rs.preview();

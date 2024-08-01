@@ -12,6 +12,7 @@ import network.darkhelmet.prism.commandlibs.CallInfo;
 import network.darkhelmet.prism.commandlibs.SubHandler;
 import network.darkhelmet.prism.utils.MiscUtils;
 import network.darkhelmet.prism.utils.TypeUtils;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class NearCommand implements SubHandler {
         parameters.setMinMaxVectorsFromPlayerLocation(call.getPlayer().getLocation());
         parameters.setLimit(plugin.getConfig().getInt("prism.near.max-results"));
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        PrismScheduler.runTaskAsynchronously(() -> {
 
             final ActionsQuery aq = new ActionsQuery(plugin);
             final QueryResult results = aq.lookup(parameters, call.getPlayer());

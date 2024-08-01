@@ -9,6 +9,7 @@ import network.darkhelmet.prism.players.PlayerIdentification;
 import network.darkhelmet.prism.utils.InventoryUtils;
 import network.darkhelmet.prism.utils.MaterialTag;
 import network.darkhelmet.prism.utils.MiscUtils;
+import network.darkhelmet.prism.utils.folia.PrismScheduler;
 import network.darkhelmet.prism.wands.ProfileWand;
 import network.darkhelmet.prism.wands.Wand;
 import net.kyori.adventure.text.Component;
@@ -127,10 +128,10 @@ public class PrismPlayerEvents implements Listener {
         final String name = player.getName();
         final boolean trackIp = plugin.getConfig().getBoolean("prism.track-player-ip-on-join");
         final boolean doNotTrackJoin = !Prism.getIgnore().event("player-join", player);
-        Bukkit.getScheduler().runTaskAsynchronously(Prism.getInstance(), () -> {
+        PrismScheduler.runTaskAsynchronously(() -> {
             // Lookup player for cache reasons
             PlayerIdentification.cachePrismPlayer(uuid, name);
-            Bukkit.getScheduler().runTask(Prism.getInstance(), () -> {
+            PrismScheduler.runTask(() -> {
                 if (doNotTrackJoin) {
                     return;
                 }
