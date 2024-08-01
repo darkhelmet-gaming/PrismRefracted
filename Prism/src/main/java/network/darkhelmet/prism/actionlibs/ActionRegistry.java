@@ -273,6 +273,8 @@ public class ActionRegistry {
                 BlockAction.class, Il8nHelper.getRawMessage("blew-up")));
         registerAction(new ActionTypeImpl("respawnanchor-explode", false, true, true,
                 BlockAction.class, Il8nHelper.getRawMessage("blew-up")));
+        registerAction(new ActionTypeImpl("block-explode", false, true, true,
+                BlockAction.class, Il8nHelper.getRawMessage("blew-up")));
         registerAction(new ActionTypeImpl("tnt-prime", false, false, false,
                 UseAction.class, Il8nHelper.getRawMessage("primed")));
         registerAction(new ActionTypeImpl("tree-grow", true, true, true,

@@ -1,7 +1,5 @@
 package network.darkhelmet.prism.listeners;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.ActionFactory;
 import network.darkhelmet.prism.actionlibs.RecordingQueue;
@@ -16,7 +14,6 @@ import org.bukkit.block.DecoratedPot;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.Chest.Type;
 import org.bukkit.block.sign.Side;
@@ -25,10 +22,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -41,7 +38,6 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
@@ -49,28 +45,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class PrismBlockEvents extends BaseListener {
+public class PrismBlockEvents implements Listener {
 
-    private final Cache<Location, PlayerBed> bedWeakCache = CacheBuilder
-            .newBuilder()
-            .expireAfterWrite(30, TimeUnit.SECONDS)
-            .build();
-    private final Cache<Location, Player> anchorWeakCache = CacheBuilder
-            .newBuilder()
-            .expireAfterWrite(30, TimeUnit.SECONDS)
-            .build();
+    private final Prism plugin;
 
     /**
      * Constructor.
-     *
-     * @param plugin Prism.
+     * @param plugin Prism
      */
     public PrismBlockEvents(Prism plugin) {
-        super(plugin);
+        this.plugin = plugin;
 
         if (Prism.getInstance().getServerMajorVersion() >= 20) {
             try {
@@ -365,63 +352,11 @@ public class PrismBlockEvents extends BaseListener {
     }
 
     /**
-     * Primarily for tracking respawn anchor explosions in the world and end,
-     * and bed explosions in the nether and end.
-     * @param event BlockExplodeEvent
-     */
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockExplode(BlockExplodeEvent event) {
-        if (event.getBlock().getBlockData() instanceof Bed) {
-            if (!Prism.getIgnore().event("bed-explode", event.getBlock())) {
-                return;
-            }
-            //while it might be nice to check that it's a bed - the block is already air
-            PlayerBed playerBed = bedWeakCache.getIfPresent(event.getBlock().getLocation());
-            if (playerBed == null) {
-                return;
-            }
-            String source = playerBed.player.getName();
-            List<Block> affected = event.blockList();
-            RecordingQueue.addToQueue(ActionFactory.createBlock("bed-explode", playerBed.bed, playerBed.player));
-            contructBlockEvent("bed-explode", source, affected);
-            bedWeakCache.invalidate(event.getBlock().getLocation());
-        } else if (event.getBlock().getType() == Material.RESPAWN_ANCHOR) {
-            if (!Prism.getIgnore().event("respawnanchor-explode", event.getBlock())) {
-                return;
-            }
-            Player player = anchorWeakCache.getIfPresent(event.getBlock().getLocation());
-            if (player == null) {
-                return;
-            }
-            String source = player.getName();
-            List<Block> affected = event.blockList();
-            RecordingQueue.addToQueue(ActionFactory.createBlock("respawnanchor-explode", event.getBlock().getState(), player));
-            contructBlockEvent("respawnanchor-explode", source, affected);
-            anchorWeakCache.invalidate(event.getBlock().getLocation());
-        }
-    }
-
-    /**
-     * Tracks players use respawn anchor to set spawnpoint and cache it in case of explosion.
-     * @param event PlayerInteractEvent
-     */
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onRespawnAnchorUse(PlayerInteractEvent event) {
-        if (event.hasBlock() && event.getClickedBlock().getType() == Material.RESPAWN_ANCHOR) {
-            anchorWeakCache.put(event.getClickedBlock().getLocation(), event.getPlayer());
-        }
-    }
-
-    /**
-     * Tracks players entering a bed and where its not possible cache's it in case of explosion.
+     * Tracks players entering a bed.
      * @param enterEvent PlayerBedEnterEvent
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBedEnter(PlayerBedEnterEvent enterEvent) {
-        if (enterEvent.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.NOT_POSSIBLE_HERE) {
-            bedWeakCache.put(enterEvent.getBed().getLocation(), new PlayerBed(enterEvent.getPlayer(),
-                    enterEvent.getBed().getState()));
-        }
         if (!Prism.getIgnore().event("block-use", enterEvent.getBed())) {
             return;
         }
