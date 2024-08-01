@@ -2,6 +2,8 @@ package network.darkhelmet.prism.bridge;
 
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.bukkit.BukkitBlockCommandSender;
+import com.sk89q.worldedit.bukkit.BukkitCommandSender;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extent.AbstractDelegateExtent;
 import com.sk89q.worldedit.extent.Extent;
@@ -18,19 +20,19 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
 public class PrismWorldEditLogger extends AbstractDelegateExtent {
-    private final Actor player;
+    private final Actor actor;
     private final World world;
 
     /**
      * Constructor.
      *
-     * @param player Actor
+     * @param actor Actor
      * @param extent Extent
      * @param world  World
      */
-    public PrismWorldEditLogger(Actor player, Extent extent, World world) {
+    public PrismWorldEditLogger(Actor actor, Extent extent, World world) {
         super(extent);
-        this.player = player;
+        this.actor = actor;
         this.world = world;
     }
 
@@ -41,8 +43,22 @@ public class PrismWorldEditLogger extends AbstractDelegateExtent {
             Block oldBlock = loc.getBlock();
             Material newMaterial = BukkitAdapter.adapt(newBlock.getBlockType());
             BlockData newData = BukkitAdapter.adapt(newBlock);
-            RecordingQueue.addToQueue(ActionFactory.createBlockChange("world-edit", loc, oldBlock.getType(),
-                    oldBlock.getBlockData(), newMaterial, newData, Bukkit.getPlayer(player.getUniqueId())));
+            if (actor.isPlayer()) {
+                RecordingQueue.addToQueue(ActionFactory.createBlockChange("world-edit", loc, oldBlock.getType(),
+                        oldBlock.getBlockData(), newMaterial, newData, Bukkit.getPlayer(actor.getUniqueId())));
+            } else {
+                String nonPlayer;
+                if (actor instanceof BukkitCommandSender) {
+                    nonPlayer = "Console";
+                } else if (actor instanceof BukkitBlockCommandSender) {
+                    com.sk89q.worldedit.util.Location location = ((BukkitBlockCommandSender) actor).getBlockLocation();
+                    nonPlayer = "Command Block(" + location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ() + ")";
+                } else {
+                    nonPlayer = actor.getName();
+                }
+                RecordingQueue.addToQueue(ActionFactory.createBlockChange("world-edit", loc, oldBlock.getType(),
+                        oldBlock.getBlockData(), newMaterial, newData, nonPlayer));
+            }
         }
         return super.setBlock(pt, newBlock);
     }
