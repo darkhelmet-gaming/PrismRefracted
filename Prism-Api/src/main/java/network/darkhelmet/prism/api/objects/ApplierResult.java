@@ -15,6 +15,8 @@ public class ApplierResult {
 
     private final int changesSkipped;
 
+    private final int stateSkipped;
+
     private final int changesPlanned;
 
     private final boolean isPreview;
@@ -36,11 +38,12 @@ public class ApplierResult {
      * @param params            Query Params
      * @param entitiesMoved     Map
      */
-    public ApplierResult(boolean isPreview, int changesApplied, int changesSkipped, int changesPlanned,
+    public ApplierResult(boolean isPreview, int changesApplied, int changesSkipped, int changesPlanned, int stateSkipped,
                          List<BlockStateChange> blockStateChanges, PrismParameters params,
                          Map<Entity, Integer> entitiesMoved) {
         this.changesApplied = changesApplied;
         this.changesSkipped = changesSkipped;
+        this.stateSkipped = stateSkipped;
         this.changesPlanned = changesPlanned;
         this.isPreview = isPreview;
         this.blockStateChanges = blockStateChanges;
@@ -58,6 +61,10 @@ public class ApplierResult {
 
     public int getChangesPlanned() {
         return changesPlanned;
+    }
+
+    public int getStateSkipped() {
+        return stateSkipped;
     }
 
 

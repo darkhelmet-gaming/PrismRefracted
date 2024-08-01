@@ -2,13 +2,19 @@ package network.darkhelmet.prism.appliers;
 
 import network.darkhelmet.prism.Il8nHelper;
 import network.darkhelmet.prism.Prism;
+import network.darkhelmet.prism.actionlibs.ActionsQuery;
 import network.darkhelmet.prism.actionlibs.QueryParameters;
+import network.darkhelmet.prism.actions.BlockAction;
 import network.darkhelmet.prism.actions.GenericAction;
+import network.darkhelmet.prism.actions.HangingItemAction;
+import network.darkhelmet.prism.actions.ItemStackAction;
+import network.darkhelmet.prism.actions.SignAction;
 import network.darkhelmet.prism.api.BlockStateChange;
 import network.darkhelmet.prism.api.ChangeResult;
 import network.darkhelmet.prism.api.ChangeResultType;
 import network.darkhelmet.prism.api.actions.Handler;
 import network.darkhelmet.prism.api.actions.PrismProcessType;
+import network.darkhelmet.prism.api.commands.Flag;
 import network.darkhelmet.prism.api.objects.ApplierResult;
 import network.darkhelmet.prism.events.EventHelper;
 import network.darkhelmet.prism.events.PrismRollBackEvent;
@@ -45,10 +51,12 @@ public class Preview implements Previewable {
     private final PrismProcessType processType;
     private final HashMap<Entity, Integer> entitiesMoved = new HashMap<>();
     private final List<Handler> worldChangeQueue = Collections.synchronizedList(new LinkedList<>());
+    private final List<Handler> updateRollbackedList = new ArrayList<>();
     private boolean isPreview = false;
     private long startTime;
     private int totalChangesCount;
     private int skippedBlockCount;
+    private int stateSkippedCount = 0;
     private int changesAppliedCount;
     private int changesPlannedCount;
     private int blockChangesRead = 0;
@@ -182,6 +190,8 @@ public class Preview implements Previewable {
         blockChangesRead = 0;
         totalChangesCount = worldChangeQueue.size();
 
+        boolean match = parameters.hasFlag(Flag.MATCHES_STATE);
+
         NumberFormat nf = NumberFormat.getNumberInstance();
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
@@ -236,10 +246,34 @@ public class Preview implements Previewable {
                         if (a instanceof GenericAction) {
                             GenericAction action = (GenericAction) a;
                             if (processType.equals(PrismProcessType.ROLLBACK)) {
+                                if (match && action.isRollbacked()) {
+                                    // We don't need to check the action because it can be rolled-back.
+                                    stateSkippedCount++;
+                                    skippedBlockCount++;
+                                    iterator.remove();
+                                    continue;
+                                }
                                 result = action.applyRollback(player, parameters, isPreview);
+                                if (!isPreview && result.getType() == ChangeResultType.APPLIED) {
+                                    action.setRollbacked(true);
+                                    updateRollbackedList.add(action);
+                                }
                             }
                             if (processType.equals(PrismProcessType.RESTORE)) {
+                                if (match && !action.isRollbacked()) {
+                                    if (action instanceof BlockAction || action instanceof HangingItemAction
+                                            || action instanceof ItemStackAction || action instanceof SignAction) {
+                                        stateSkippedCount++;
+                                        skippedBlockCount++;
+                                    }
+                                    iterator.remove();
+                                    continue;
+                                }
                                 result = action.applyRestore(player, parameters, isPreview);
+                                if (!isPreview && result.getType() == ChangeResultType.APPLIED) {
+                                    action.setRollbacked(false);
+                                    updateRollbackedList.add(action);
+                                }
                             }
                             if (processType.equals(PrismProcessType.UNDO)) {
                                 result = action.applyUndo(player, parameters, isPreview);
@@ -291,6 +325,8 @@ public class Preview implements Previewable {
                 if (isPreview) {
                     postProcessPreview();
                 } else {
+                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> new ActionsQuery(plugin).
+                            updateRollbacked(updateRollbackedList.toArray(new Handler[0])));
                     postProcess();
                 }
 
@@ -359,7 +395,7 @@ public class Preview implements Previewable {
         }
 
         final ApplierResult results = new ApplierResult(isPreview, changesAppliedCount, skippedBlockCount,
-              changesPlannedCount, blockStateChanges, parameters, entitiesMoved);
+                changesPlannedCount, stateSkippedCount, blockStateChanges, parameters, entitiesMoved);
 
         if (callback != null) {
             callback.handle(sender, results);
@@ -380,7 +416,7 @@ public class Preview implements Previewable {
             plugin.eventTimer.printTimeRecord();
             Prism.debug("Changes: " + changesAppliedCount);
             Prism.debug("Planned: " + changesPlannedCount);
-            Prism.debug("Skipped: " + skippedBlockCount);
+            Prism.debug("Skipped: " + skippedBlockCount + (stateSkippedCount > 0 ? "(" + stateSkippedCount + " state ignored)" : ""));
         }
     }
 }

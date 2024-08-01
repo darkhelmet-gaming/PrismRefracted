@@ -14,7 +14,8 @@ public enum Flag {
     OVERWRITE("flag-overwrite"),
     SHARE("-share=player1[,player2...]", "flag-share-result"),
     PASTE("flag-paste"),
-    NO_PHYS("flag-no-physics");
+    NO_PHYS("flag-no-physics"),
+    MATCHES_STATE("flag-matches-state");
 
     private final String description;
     private final String permission;

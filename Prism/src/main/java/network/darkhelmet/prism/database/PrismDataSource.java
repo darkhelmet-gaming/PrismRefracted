@@ -56,5 +56,7 @@ public interface PrismDataSource {
 
     SelectProcessActionQuery createProcessQuery();
 
+    UpdateQuery createUpdateQuery();
+
     InsertQuery getDataInsertionQuery();
 }

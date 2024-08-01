@@ -54,6 +54,8 @@ public abstract class GenericAction implements Handler {
 
     private BlockData oldBlockData;
 
+    private boolean rollbacked;
+
     private int aggregateCount = 0;
 
     public GenericAction() {
@@ -435,6 +437,16 @@ public abstract class GenericAction implements Handler {
     @Override
     public void setCanceled(boolean cancel) {
         this.canceled = cancel;
+    }
+
+    @Override
+    public boolean isRollbacked() {
+        return rollbacked;
+    }
+
+    @Override
+    public void setRollbacked(boolean rollbacked) {
+        this.rollbacked = rollbacked;
     }
 
     /**

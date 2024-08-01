@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
@@ -84,11 +85,14 @@ public class ActionMessage {
                              .content("(a:" + action.getShortName() + ")")
                              .color(NamedTextColor.GRAY))
                 .replaceFirstText(Pattern.compile("<handlerId>"),
-                      builder -> Component.text(handler.getId()).toBuilder()
-                                .color(NamedTextColor.GRAY));
+                      builder -> Component.text(handler.getId()).color(NamedTextColor.GRAY));
+        if (handler.isRollbacked()) {
+            result = result.decorate(TextDecoration.STRIKETHROUGH);
+        }
         return Component.text()
                 .content("")
                 .append(result)
+                .colorIfAbsent(NamedTextColor.WHITE)
                 .hoverEvent(HoverEvent.showText(Component.text("Click to teleport")
                         .color(NamedTextColor.DARK_AQUA)))
                 .clickEvent(ClickEvent.runCommand("/pr tp " + index))

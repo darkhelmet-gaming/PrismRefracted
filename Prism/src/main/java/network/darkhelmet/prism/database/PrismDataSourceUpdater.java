@@ -15,5 +15,7 @@ public interface PrismDataSourceUpdater {
     void v6_to_v7();
 
     void v7_to_v8();
+
+    void v8_to_v9();
 }
 

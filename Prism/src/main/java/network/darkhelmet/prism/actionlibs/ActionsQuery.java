@@ -4,12 +4,14 @@ package network.darkhelmet.prism.actionlibs;
 import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actions.PrismProcessAction;
 import network.darkhelmet.prism.api.PrismParameters;
+import network.darkhelmet.prism.api.actions.Handler;
 import network.darkhelmet.prism.api.actions.PrismProcessType;
 import network.darkhelmet.prism.api.commands.Flag;
 import network.darkhelmet.prism.database.DeleteQuery;
 import network.darkhelmet.prism.database.SelectIdQuery;
 import network.darkhelmet.prism.database.SelectProcessActionQuery;
 import network.darkhelmet.prism.database.SelectQuery;
+import network.darkhelmet.prism.database.UpdateQuery;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -179,5 +181,15 @@ public class ActionsQuery {
         dqb.setShouldGroup(false);//make it clear that we dont want to group for deletes
         dqb.setShouldPause(shouldPauseDB); //will stop recording queue
         return dqb.execute();
+    }
+
+    /**
+     * Update the rollbacked state of actions.
+     *
+     * @param handlers the handlers need to update.
+     */
+    public void updateRollbacked(Handler... handlers) {
+        final UpdateQuery updateQuery = Prism.getPrismDataSource().createUpdateQuery();
+        updateQuery.updateRollbacked(handlers);
     }
 }
