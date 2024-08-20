@@ -205,7 +205,7 @@ public class PrismConfig extends ConfigBase {
 
         // Tracker configs
         config.addDefault("prism.track-player-ip-on-join", false);
-        config.addDefault("prism.track-hopper-item-events", false);
+        config.addDefault("prism.track-hopper-item-events", true);
 
         final Collection<String> doNotTrackCommand = new ArrayList<>();
         doNotTrackCommand.add("vanish");

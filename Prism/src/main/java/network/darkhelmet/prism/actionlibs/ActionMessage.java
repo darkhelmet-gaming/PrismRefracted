@@ -1,5 +1,9 @@
 package network.darkhelmet.prism.actionlibs;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.api.BinaryTagHolder;
+import network.darkhelmet.prism.actions.ItemStackAction;
 import network.darkhelmet.prism.api.actions.ActionType;
 import network.darkhelmet.prism.api.actions.Handler;
 import network.darkhelmet.prism.utils.block.Utilities;
@@ -12,6 +16,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.regex.Pattern;
 
@@ -78,7 +83,7 @@ public class ActionMessage {
                 .replaceFirstText(Pattern.compile("<location>"),
                         builder -> Component.text().content(getFormattedLocation()))
                 .replaceFirstText(Pattern.compile("<count>"),
-                      builder -> Component.text().append(getCount()))
+                      builder -> enhanceByAction(Component.text().append(getCount())))
                 .replaceFirstText(Pattern.compile("<actionType>"),
                       builder -> Component.text()
                              .content("(a:" + action.getShortName() + ")")
@@ -91,7 +96,7 @@ public class ActionMessage {
                 .append(result)
                 .hoverEvent(HoverEvent.showText(Component.text("Click to teleport")
                         .color(NamedTextColor.DARK_AQUA)))
-                .clickEvent(ClickEvent.runCommand("/pr tp " + index))
+                .clickEvent(ClickEvent.runCommand("/prism tp " + index))
                 .build();
 
     }
@@ -165,9 +170,17 @@ public class ActionMessage {
             target = "powder snow ";
             }
         }
-        return Component.text()
-                .content(target)
-                .color(highlight);
+        return enhanceByAction(Component.text().content(target).color(highlight));
+    }
+
+    private TextComponent.Builder enhanceByAction(TextComponent.Builder msg) {
+        if (handler instanceof ItemStackAction) {
+            ItemStack item = ((ItemStackAction) handler).getItem();
+            return msg.hoverEvent(HoverEvent.showItem(Key.key(item.getType().getKey().getKey()),
+                            item.getAmount(), BinaryTagHolder.binaryTagHolder(new NBTItem(item).toString())))
+                    .clickEvent(ClickEvent.runCommand("/prism give " + index));
+        }
+        return msg;
     }
 
     private TextComponent getCount() {

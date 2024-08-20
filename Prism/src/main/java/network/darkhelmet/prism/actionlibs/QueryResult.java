@@ -16,6 +16,7 @@ public class QueryResult implements Result {
     private int perPage = 5;
     private int totalPages = 0;
     private long lastTeleportIndex = 0;
+    private long lastGiveIndex = 0;
 
     /**
      * Create a Query Result.
@@ -101,6 +102,14 @@ public class QueryResult implements Result {
 
     public void setLastTeleportIndex(long index) {
         this.lastTeleportIndex = index;
+    }
+
+    public long getLastGiveIndex() {
+        return lastGiveIndex;
+    }
+
+    public void setLastGiveIndex(long lastGiveIndex) {
+        this.lastGiveIndex = lastGiveIndex;
     }
 
     public int getIndexOfFirstResult() {

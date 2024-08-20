@@ -4,6 +4,7 @@ import network.darkhelmet.prism.Prism;
 import network.darkhelmet.prism.actionlibs.ActionFactory;
 import network.darkhelmet.prism.actionlibs.RecordingQueue;
 import network.darkhelmet.prism.api.actions.Handler;
+import network.darkhelmet.prism.utils.NmsUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -654,7 +655,7 @@ public class PrismInventoryEvents implements Listener {
                     for (int i = 0; i < length; ++i) {
                         ItemStack is = contents[i];
 
-                        if (slotItem.isSimilar(is)) {
+                        if (slotItem.isSimilar(is) && NmsUtils.canAcceptPlaceQuick(event.getView(), slotItem, i)) {
                             amount = recordDeductTransfer(INSERT,stackSize - is.getAmount(),amount,slotItem,
                                     containerLoc,i,player,event);
                             if (amount <= 0) {
@@ -668,7 +669,7 @@ public class PrismInventoryEvents implements Listener {
                         for (int i = 0; i < length; ++i) {
                             ItemStack is = contents[i];
 
-                            if (is == null || is.getType() == Material.AIR) {
+                            if ((is == null || is.getType() == Material.AIR) && NmsUtils.canAcceptPlaceQuick(event.getView(), slotItem, i)) {
                                 amount = recordDeductTransfer(INSERT,stackSize,amount,slotItem,
                                         containerLoc,i,player,event);
                                 if (amount <= 0) {

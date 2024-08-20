@@ -44,6 +44,8 @@ permissions:
         default: op
     prism.tp:
         default: op
+    prism.give:
+        default: op
     prism.report:
         default: op
     prism.reload:

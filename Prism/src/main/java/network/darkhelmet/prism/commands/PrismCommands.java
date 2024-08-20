@@ -74,6 +74,7 @@ public class PrismCommands extends Executor {
         addSub(new String[]{"setmy"}, new String[]{"prism.setmy.wand"}).setHandler(new SetmyCommand(prism));
         addSub(new String[]{"resetmy"}, new String[]{"prism.setmy.wand"}).setHandler(new ResetmyCommand(prism));
         addSub("tp", "prism.tp").setMinArgs(1).setHandler(new TeleportCommand(prism));
+        addSub("give", "prism.give").setMinArgs(1).setHandler(new GiveCommand(prism));
         addSub("ex", "prism.extinguish").setHandler(new ExtinguishCommand(prism));
         addSub("drain", "prism.drain").setHandler(new DrainCommand(prism));
         addSub(new String[]{"preview", "pv"}, "prism.preview").setMinArgs(1).setHandler(new PreviewCommand(prism));
