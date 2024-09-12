@@ -590,9 +590,10 @@ public class BlockAction extends GenericAction {
         setBlockRotatable(state, s);
         state = block.getState();
 
-        if (!s.owner.isEmpty()) {
+        if (s.owner != null && !s.owner.isEmpty()) {
             final Skull skull = (Skull) state;
             skull.setOwningPlayer(Bukkit.getOfflinePlayer(EntityUtils.uuidOf((s.owner))));
+            skull.update();
         }
         BlockStateChangeImpl stateChange = new BlockStateChangeImpl(originalBlock, state);
         return new ChangeResultImpl(ChangeResultType.APPLIED, stateChange);
