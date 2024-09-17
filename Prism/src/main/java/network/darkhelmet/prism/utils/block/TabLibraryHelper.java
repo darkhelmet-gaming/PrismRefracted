@@ -113,6 +113,11 @@ public class TabLibraryHelper {
                     Tag.FLOWER_POTS)
             .append(MaterialTag.ALL_PLANTS);
 
+    // Material that will detach from the bottom of a block when that block is broken
+    protected static final MaterialTag fallsOffBottom = new MaterialTag(
+            Material.NETHER_PORTAL
+    );
+
     // Material that will be detached by flowing water/lava
     protected static final MaterialTag flowBreaks =
             new MaterialTag(

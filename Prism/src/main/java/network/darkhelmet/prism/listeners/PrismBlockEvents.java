@@ -170,20 +170,17 @@ public class PrismBlockEvents extends BaseListener {
             }
         }
 
-        // Find a list of side-face attached blocks that will detach
-        ArrayList<Block> detachedBlocks = Utilities.findSideFaceAttachedBlocks(block);
-        if (detachedBlocks.size() > 0) {
-            for (final Block b : detachedBlocks) {
-                breakCallback.accept(b);
-            }
+        // Find all attached blocks that will detach when the block is broken
+        for (final Block b : Utilities.findSideFaceAttachedBlocks(block)) {
+            breakCallback.accept(b);
         }
 
-        // Find a list of top-side attached blocks that will detach
-        detachedBlocks = Utilities.findTopFaceAttachedBlocks(block);
-        if (detachedBlocks.size() > 0) {
-            for (final Block b : detachedBlocks) {
-                breakCallback.accept(b);
-            }
+        for (final Block b : Utilities.findTopFaceAttachedBlocks(block)) {
+            breakCallback.accept(b);
+        }
+
+        for (final Block b : Utilities.findBottomFaceAttachedBlocks(block)) {
+            breakCallback.accept(b);
         }
 
         // Find a list of all hanging entities on this block
@@ -242,15 +239,6 @@ public class PrismBlockEvents extends BaseListener {
 
         // check for block relationships
         logBlockRelationshipsForBlock(player, block);
-
-        // if obsidian, log portal blocks
-        if (block.getType().equals(Material.OBSIDIAN)) {
-            final ArrayList<Block> blocks = Utilities.findConnectedBlocksOfType(Material.NETHER_PORTAL, block, null);
-            if (!blocks.isEmpty()) {
-                // Only log 1 portal break, we don't need all 8
-                RecordingQueue.addToQueue(ActionFactory.createBlock("block-break", blocks.get(0), player));
-            }
-        }
 
         // Pass to the break alerter
         if (!player.hasPermission("prism.alerts.use.break.ignore")

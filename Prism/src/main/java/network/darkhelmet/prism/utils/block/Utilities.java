@@ -22,10 +22,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.Locale;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class Utilities {
 
@@ -38,6 +36,9 @@ public class Utilities {
      * @param material Material 2
      */
     private static final EnumMap<Material, Material> baseMaterials = new EnumMap<>(Material.class);
+
+    public static BlockFace[] CARDINAL_FACES = new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
+    public static BlockFace[] CARDINAL_Y_FACES = new BlockFace[] {BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST};
 
     static {
         baseMaterials.put(Material.GRASS_BLOCK, Material.DIRT);
@@ -279,7 +280,7 @@ public class Utilities {
     }
 
     /**
-     * Searches around a block for the first block of the given material.
+     * Searches around a block in all {@link Utilities#CARDINAL_FACES} directions for the first block of the given material.
      *
      * @param block the block to search around
      * @param m     the material of the surrounding block to look for
@@ -287,21 +288,24 @@ public class Utilities {
      */
     @SuppressWarnings("unused")
     public static Block findFirstSurroundingBlockOfType(Block block, Material m) {
-        Block blockToCheck = block.getRelative(BlockFace.EAST);
-        if (blockToCheck.getType().equals(m)) {
-            return blockToCheck;
-        }
-        blockToCheck = block.getRelative(BlockFace.WEST);
-        if (blockToCheck.getType().equals(m)) {
-            return blockToCheck;
-        }
-        blockToCheck = block.getRelative(BlockFace.NORTH);
-        if (blockToCheck.getType().equals(m)) {
-            return blockToCheck;
-        }
-        blockToCheck = block.getRelative(BlockFace.SOUTH);
-        if (blockToCheck.getType().equals(m)) {
-            return blockToCheck;
+        return findFirstSurroundingBlockOfType(block, m, CARDINAL_FACES);
+    }
+
+    /**
+     * Searches around a block in all specified directions for the first block of the given material.
+     *
+     * @param block the block to search around
+     * @param m     the material of the surrounding block to look for
+     * @param directions the array of directions to search in. See {@link Utilities#CARDINAL_FACES} and {@link Utilities#CARDINAL_Y_FACES}
+     * @return the first surrounding block of the given material found
+     */
+    @SuppressWarnings("unused")
+    public static Block findFirstSurroundingBlockOfType(Block block, Material m, BlockFace[] directions) {
+        for (BlockFace face : directions) {
+            Block check = block.getRelative(face);
+            if (check.getType() == m) {
+                return check;
+            }
         }
         return null;
     }
@@ -319,7 +323,7 @@ public class Utilities {
     }
 
     /**
-     * Searches for detachable blocks on the four acceptable sides of a block.
+     * Searches for detachable blocks on the top of a block.
      *
      * @param block Block
      * @return ArrayList of Blocks
@@ -333,11 +337,27 @@ public class Utilities {
             detachingBlocks.add(blockToCheck);
             if (blockToCheck.getType().equals(Material.CACTUS) || blockToCheck.getType().equals(Material.SUGAR_CANE)) {
                 // For cactus and sugar cane, we can even have blocks above
-                ArrayList<Block> additionalBlocks = findTopFaceAttachedBlocks(blockToCheck);
-                if (!additionalBlocks.isEmpty()) {
-                    detachingBlocks.addAll(additionalBlocks);
-                }
+                detachingBlocks.addAll(findTopFaceAttachedBlocks(blockToCheck));
             }
+        }
+
+        return detachingBlocks;
+
+    }
+
+    /**
+     * Searches for detachable blocks on the bottom of a block.
+     *
+     * @param block Block
+     * @return ArrayList of Blocks
+     */
+    public static ArrayList<Block> findBottomFaceAttachedBlocks(final Block block) {
+        ArrayList<Block> detachingBlocks = new ArrayList<>();
+
+        // Find any block below this block that will detach
+        Block blockToCheck = block.getRelative(BlockFace.DOWN);
+        if (Utilities.isBottomFaceDetachableMaterial(blockToCheck.getType())) {
+            detachingBlocks.add(blockToCheck);
         }
 
         return detachingBlocks;
@@ -353,6 +373,17 @@ public class Utilities {
     @SuppressWarnings("WeakerAccess")
     public static boolean isTopFaceDetachableMaterial(Material m) {
         return  TabLibraryHelper.fallsOffTop.isTagged(m);
+    }
+
+    /**
+     * Determine whether or not a block is going to detach from the top of a block.
+     *
+     * @param m the material to check for detaching
+     * @return boolean - whether a block with a given material will detach from the top of a block.
+     **/
+    @SuppressWarnings("WeakerAccess")
+    public static boolean isBottomFaceDetachableMaterial(Material m) {
+        return  TabLibraryHelper.fallsOffBottom.isTagged(m);
     }
 
     /**
@@ -583,39 +614,79 @@ public class Utilities {
      * @param currBlock      block
      * @param foundLocations List
      * @return List
+     * 
+     * @apiNote Deprecated method. Use {@link #getFuzzyConnectedBlocks(Block, int, Material, int)}
      */
-    public static ArrayList<Block> findConnectedBlocksOfType(Material type, Block currBlock,
-                                                             final ArrayList<Location> foundLocations) {
+    @Deprecated
+    public static ArrayList<Block> findConnectedBlocksOfType(Material type, Block currBlock, final ArrayList<Location> foundLocations) {
+        return new ArrayList<Block>(getFuzzyConnectedBlocks(currBlock, 0, type, 8192));
+    }
 
-        ArrayList<Block> foundBlocks = new ArrayList<>();
-        ArrayList<Location> locations;
-        if (foundLocations == null) {
-            locations = new ArrayList<>();
-        } else {
-            locations = foundLocations;
-        }
+    /**
+     * Checks & returns all blocks around block if they match the given predicate<br>
+     * This is done in a "fuzzy" fashion controlled by xFuzz, yFuzz and zFuzz respectively. This allows blocks not directly connected to be added to the results. Set to zero to disable.
+     * @param block the block to start checking from
+     * @param fuzz fuzziness of the check
+     * @param type the type of {@link Block}s to consider connected. Usually {@code block.getType()}
+     * @param max the maximum number of blocks to compute
+     * @return A {@link Set} of {@link Block}s that is considered connected by the given {@link Predicate} or an empty {@link Set} if there were no results
+     *
+     * @author TauCubed
+     */
+    public static Set<Block> getFuzzyConnectedBlocks(Block block, int fuzz, Material type, int max) {
+        return getFuzzyConnectedBlocks(block, fuzz, fuzz, fuzz,  check -> check.getType() == type, max);
+    }
 
-        locations.add(currBlock.getLocation());
+    /**
+     * Checks & returns all blocks around block if they match the given predicate<br>
+     * This is done in a "fuzzy" fashion controlled by xFuzz, yFuzz and zFuzz respectively. This allows blocks not directly connected to be added to the results. Set to zero to disable.
+     * @param block the block to start checking from
+     * @param fuzz fuzziness of the check
+     * @param check the predicate used to check if the block should be considered "connected"
+     * @param max fhe maximum number of blocks to compute
+     * @return A {@link Set} of {@link Block}s that is considered connected by the given {@link Predicate} or an empty {@link Set} if there were no results
+     *
+     * @author TauCubed
+     */
+    public static Set<Block> getFuzzyConnectedBlocks(Block block, int fuzz, Predicate<Block> check, int max) {
+        return getFuzzyConnectedBlocks(block, fuzz, fuzz, fuzz, check, max);
+    }
 
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                for (int y = -1; y <= 1; y++) {
-                    Block newBlock = currBlock.getRelative(x, y, z);
-                    // ensure it matches the type and wasn't already found
-                    if (newBlock.getType() == type && !locations.contains(newBlock.getLocation())) {
-                        foundBlocks.add(newBlock);
-                        ArrayList<Block> additionalBlocks = findConnectedBlocksOfType(type, newBlock, locations);
-                        if (additionalBlocks.size() > 0) {
-                            foundBlocks.addAll(additionalBlocks);
+    /**
+     * Checks & returns all blocks around block if they match the given predicate<br>
+     * This is done in a "fuzzy" fashion controlled by xFuzz, yFuzz and zFuzz respectively. This allows blocks not directly connected to be added to the results. Set to zero to disable.
+     * @param block the block to start checking from
+     * @param xFuzz X directional fuzziness of the check
+     * @param yFuzz Y directional fuzziness of the check
+     * @param zFuzz Z directional fuzziness of the check
+     * @param check the predicate used to check if the block should be considered "connected"
+     * @param max the maximum number of blocks to compute
+     * @return A {@link Set} of {@link Block}s that is considered connected by the given {@link Predicate} or an empty {@link Set} if there were no results
+     *
+     * @author TauCubed
+     */
+    public static Set<Block> getFuzzyConnectedBlocks(Block block, int xFuzz, int yFuzz, int zFuzz, Predicate<Block> check, int max) {
+        Set<Block> results = new HashSet<>();
+        LinkedList<Block> pending = new LinkedList<>();
+
+        // add the first block to search from
+        pending.add(block);
+
+        while ((block = pending.poll()) != null && results.size() < max) {
+            for (int modX = -xFuzz; modX <= xFuzz; modX++) {
+                for (int modY = -yFuzz; modY <= yFuzz; modY++) {
+                    for (int modZ = -zFuzz; modZ <= zFuzz; modZ++) {
+                        Block nearby = block.getRelative(modX, modY, modZ);
+                        if (check.test(nearby) && results.add(nearby)) {
+                            pending.add(nearby);
                         }
                     }
                 }
             }
         }
-
-        return foundBlocks;
-
+        return results;
     }
+
 
     /**
      * Get Block below of same type.
