@@ -22,19 +22,18 @@ public class PrismHikariDataSource extends SqlPrismDataSource {
             dbConfig = new HikariConfig(propFile.getPath());
         } else {
             Prism.log("You may need to adjust these settings for your setup.");
-            Prism.log("To set a table prefix you will need to create a config entry under");
-            Prism.log("prism:");
-            Prism.log("  datasource:");
-            Prism.log("    prefix: your-prefix");
+            Prism.log("To change the table prefix you will need to edit datasource.properties.prefix entry in config.yml");
             String jdbcUrl = "jdbc:mysql://localhost:3306/prism?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
             Prism.log("Default jdbcUrl: " + jdbcUrl);
             Prism.log("Default Username: username");
             Prism.log("Default Password: password");
-            Prism.log("You will need to provide the required jar libraries that support your database.");
+            Prism.log("You may need to provide the required jar libraries(driver) that support your database.");
             dbConfig = new HikariConfig();
             dbConfig.setJdbcUrl(jdbcUrl);
             dbConfig.setUsername("username");
             dbConfig.setPassword("password");
+            dbConfig.setMinimumIdle(2);
+            dbConfig.setMaximumPoolSize(10);
             HikariHelper.createPropertiesFile(propFile, dbConfig, false);
         }
     }
@@ -57,6 +56,9 @@ public class PrismHikariDataSource extends SqlPrismDataSource {
             return this;
         } catch (HikariPool.PoolInitializationException e) {
             Prism.warn("Hikari Pool did not Initialize: " + e.getMessage());
+            database = null;
+        } catch (IllegalArgumentException e) {
+            Prism.warn("Hikari Pool did not Initialize: " + e);
             database = null;
         }
         return this;
